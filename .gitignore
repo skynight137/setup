@@ -1,0 +1,45 @@
+# OSX
+#
+.DS_Store
+
+# Android/IntelliJ
+#
+build/
+.idea
+.kotlin
+.gradle
+#local.properties
+*.iml
+*.hprof
+.cxx/
+
+
+
+# generated inline modules
+app/src/main/java/inline/
+
+# Bundle artifacts
+*.jsbundle
+
+.bin/
+scripts/
+lib/
+artifacts/
+app/src/debugOptimized/
+app/src/debug/
+attached_assets/
+
+# Private release signing key — generated locally via keytool, never committed.
+# See app/build.gradle's release signingConfig. app/debug.keystore is the one
+# intentional exception (a fixed, publicly-known Android debug key).
+app/*.jks
+app/*.keystore
+!app/debug.keystore
+*.p12
+*.pfx
+
+# Base64 dumps of a keystore, produced only as a copy/paste source for the
+# GitHub Actions "KEYSTORE" repo secret — delete once copied.
+.local/keystore_base64.txt
+*keystore*.b64
+*keystore*base64*.txt

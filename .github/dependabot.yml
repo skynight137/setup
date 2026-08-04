@@ -1,0 +1,15 @@
+# version: 2
+# updates:
+#   # Gradle dependencies (root build.gradle, app/build.gradle) and the Gradle
+#   # wrapper version in gradle/wrapper/gradle-wrapper.properties — both are
+#   # handled by the "gradle" ecosystem scanning from the repo root.
+#   - package-ecosystem: "gradle"
+#     directory: "/"
+#     schedule:
+#       interval: "weekly"
+
+#   # GitHub Actions workflow dependencies, if/when any are added under .github/workflows
+#  - package-ecosystem: "github-actions"
+#     directory: "/"
+#     schedule:
+#       interval: "weekly"
