@@ -10,7 +10,7 @@ description: >-
   complete, or when debugging why teammates are not coordinating correctly at
   integration points.
 version: 1.0.2
-enabled: true
+enabled: false
 ---
 
 # Team Communication Protocols

@@ -1,6 +1,7 @@
 ---
 name: bot-node-reassignment-patterns
 description: Use this skill when working on multi-VPS node heartbeat, NodeStatusCollection, auto-start-on-reassignment, or the "Reassign Node" UI in Bot Configuration. Covers NodeStatusModel, upsert pattern, heartbeat loop, Change Stream auto-start hook (BotsCollection._on_bot_assigned), reassign_node menu flow, callback schema, do_reassign sequence, and staleness thresholds.
+enabled: false
 ---
 
 # Bot Node Reassignment Patterns

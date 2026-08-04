@@ -1,15 +1,11 @@
 ---
 name: backend-inventory-service-patterns
-<<<<<<< HEAD
-description: Use this skill when working on InventoryService, inventory endpoints, purchased item management, access link generation (vip_chat/paid_message), inventory expiry, or bot_bundle/user_bundle cache invalidation. Covers add/update/remove/list, AccessResult, and schema patterns.
-=======
 description: >-
   Use this skill when working on InventoryService, inventory endpoints,
   purchased item management, access link generation (vip_chat/paid_message),
   inventory expiry, or bot_bundle/user_bundle cache invalidation. Covers
   add/update/remove/list, AccessResult, and schema patterns.
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Backend Inventory Service Patterns
@@ -25,11 +21,7 @@ Location: `backend/services/inventory.py`
 | `add_inventory(wallet_id, tx_id, item, expired_at)` | Add purchased product to inventory; polymorphic by category |
 | `update_inventory(wallet_id, item_id, **kwargs)` | Update inventory item; ownership check; re-validates polymorphically |
 | `remove_inventory(wallet_id, item_id)` | Delete; ownership check; invalidates config cache for bundles |
-<<<<<<< HEAD
-| `get_inventory_list(wallet_id)` | Sync — reads from in-memory cache |
-=======
 | `get_inventory_list(wallet_id, cursor=None, limit=50)` | Async — DB-side cursor pagination via `InventoryCollection.get_paginated` |
->>>>>>> 2ecb89d (update)
 | `get_inventory_detail(wallet_id, item_id)` | Async — DB fetch; returns `{}` if not found or access denied |
 | `get_sales_count()` | Count purchases per product across all inventory |
 | `generate_and_send_access_link(wallet_id, item_id)` | Generate + send access link for vip_chat/paid_message |
@@ -100,10 +92,6 @@ try:
         wallet_id=auth.wallet_id,
         item_id=payload.item_id,   # inv.id, not product.id
     )
-<<<<<<< HEAD
-except ValueError as e:
-    raise HTTPException(status_code=404, detail=str(e))
-=======
     return JSONResponse(content={"message": "Item removed"})
 except ValueError as e:
     raise HTTPException(status_code=404, detail=str(e))
@@ -112,7 +100,6 @@ except HTTPException:
 except Exception:
     LOGGER.exception("remove_inventory failed")
     raise HTTPException(status_code=500, detail="Internal server error")
->>>>>>> 2ecb89d (update)
 ```
 
 Raises `ValueError` if: item not found, or `inv.wallet_id != wallet_id`.
@@ -161,16 +148,6 @@ class AccessResult:
 ## get_inventory_list
 
 ```python
-<<<<<<< HEAD
-# Sync — reads from in-memory cache (synced via change stream):
-items: list[InventoryModel] = await InventoryService.get_inventory_list(wallet_id=auth.wallet_id)
-
-return JSONResponse(content={
-    "items": [item.model_dump(mode="json") for item in items]
-})
-```
-
-=======
 # Async — DB-side cursor pagination (sort + $gt cursor filter + limit pushed to MongoDB):
 items, next_cursor = await InventoryService.get_inventory_list(
     wallet_id=auth.wallet_id, cursor=cursor, limit=limit,
@@ -188,7 +165,6 @@ are returned. `next_cursor` is `None` when there are no further pages. Both v1 a
 `GET /inventory` endpoints accept `cursor`/`limit` query params and forward them here — the
 service no longer loads the full wallet inventory into memory to sort/slice in Python.
 
->>>>>>> 2ecb89d (update)
 ---
 
 ## get_sales_count
@@ -221,21 +197,12 @@ Important: `InventoryRemoveRequest.item_id` uses `pattern=constants.PRODUCT_ID_P
 
 ## Endpoint Pattern (v2)
 
-<<<<<<< HEAD
-=======
 Every handler requires an outer guard — `except HTTPException: raise` then `except Exception → LOGGER.exception + 500`.
 
->>>>>>> 2ecb89d (update)
 ```python
 # GET /inventory — list buyer's purchased items
 @router.get("")
 async def list_inventory(
-<<<<<<< HEAD
-    auth: AuthRequest = Depends(require_auth_cookies_login),
-) -> JSONResponse:
-    items = await InventoryService.get_inventory_list(auth.wallet_id)
-    return JSONResponse(content={"items": [i.model_dump(mode="json") for i in items]})
-=======
     cursor: str | None = Query(None),
     limit: int = Query(50, ge=1, le=200),
     auth: AuthRequest = Depends(require_auth_cookies_login),
@@ -252,7 +219,6 @@ async def list_inventory(
     except Exception:
         LOGGER.exception("list_inventory failed")
         raise HTTPException(status_code=500, detail="Internal server error")
->>>>>>> 2ecb89d (update)
 
 # POST /inventory/access — generate + send access link
 @router.post("/access")
@@ -260,15 +226,6 @@ async def get_access_link(
     payload: InventoryAccessRequest,
     auth: AuthRequest = Depends(require_auth_cookies_login),
 ) -> JSONResponse:
-<<<<<<< HEAD
-    result = await InventoryService.generate_and_send_access_link(
-        wallet_id=auth.wallet_id,
-        item_id=payload.item_id,
-    )
-    if not result.success:
-        raise HTTPException(status_code=400, detail=result.message)
-    return JSONResponse(content=result.model_dump())
-=======
     try:
         result = await InventoryService.generate_and_send_access_link(
             wallet_id=auth.wallet_id,
@@ -282,17 +239,12 @@ async def get_access_link(
     except Exception:
         LOGGER.exception("get_access_link failed")
         raise HTTPException(status_code=500, detail="Internal server error")
->>>>>>> 2ecb89d (update)
 
 # GET /inventory/sales — seller analytics (dev or owner-scoped)
 @router.get("/sales")
 async def get_sales_count(
     auth: AuthRequest = Depends(require_auth_cookies_login),
 ) -> JSONResponse:
-<<<<<<< HEAD
-    sales = await InventoryService.get_sales_count()
-    return JSONResponse(content={"sales": sales})
-=======
     try:
         sales = await InventoryService.get_sales_count()
         return JSONResponse(content={"sales": sales})
@@ -301,7 +253,6 @@ async def get_sales_count(
     except Exception:
         LOGGER.exception("get_sales_count failed")
         raise HTTPException(status_code=500, detail="Internal server error")
->>>>>>> 2ecb89d (update)
 ```
 
 ---

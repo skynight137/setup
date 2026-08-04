@@ -1,42 +1,27 @@
 ---
 name: bot-msgstore-patterns
-<<<<<<< HEAD
-description: Use this skill when working on the msg_store module (bot/modules/msg_store.py) or deep link handling in start.py. Covers normal vs paid access flow, security checks, and encrypted token patterns.
-=======
 description: >-
   Use this skill when working on the msg_store module
   (bot/modules/special/msg_store.py) or deep link handling in start.py. Covers
   normal vs paid access flow, security checks, encrypted token patterns, media
   group auto-expansion, and chain link generation.
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Bot — MsgStore Patterns
 
-<<<<<<< HEAD
-Reference for the MsgStore system in `bot/modules/msg_store.py` and `bot/modules/start.py`.
-=======
 Reference for the MsgStore system in `bot/modules/special/msg_store.py` and `bot/modules/core/start.py`.
->>>>>>> 2ecb89d (update)
 
 ---
 
 ## File Structure
 
 ```
-<<<<<<< HEAD
-bot/modules/msg_store.py    # MsgStore class, command logic
-bot/plugins/special.py      # Plugin registration (filters.command + filters.sudo)
-bot/modules/start.py        # Deep link handler for encrypted tokens
-bot/utils/bot_commands.py   # Command: msg_store = ["msgstore", "ms"]
-=======
 bot/modules/special/msg_store.py   # MsgStore class, command logic
 bot/plugins/special.py             # Plugin registration (filters.command + filters.sudo)
 bot/modules/core/start.py          # Deep link handler for encrypted tokens
 bot/utils/bot_commands.py          # Command: msg_store = ["msgstore", "ms"]
 bot/utils/constants/args.py        # ArgFlags: SOURCE_CHAT, MESSAGE_ID, CHAIN
->>>>>>> 2ecb89d (update)
 ```
 
 ---
@@ -68,10 +53,7 @@ Checks if **any part** of the requested range overlaps with a Paid Message produ
 | Normal MsgStore for non-paid range | ✅ Allowed |
 | Normal MsgStore for paid range | ❌ Blocked — returns empty list |
 | Creating link for paid range | ❌ Blocked with error message |
-<<<<<<< HEAD
-=======
 | Chain link for paid source | ❌ Blocked on initial source only |
->>>>>>> 2ecb89d (update)
 
 This prevents Normal MsgStore from bypassing Paid MsgStore access control.
 
@@ -80,23 +62,15 @@ This prevents Normal MsgStore from bypassing Paid MsgStore access control.
 ## Command Usage
 
 ```
-<<<<<<< HEAD
-/msgstore                              # Quick mode — creates link from replied message
-/msgstore -sc @channel -mid 100-200   # Manual mode — create link for message range
-/msgstore -sc -1001234567 -mid 50     # Single message by ID
-=======
 /ms                                         # Quick mode — creates link from replied message
 /ms -sc @channel -mid 100-200              # Manual mode — create link for message range
 /ms -sc -1001234567 -mid 50               # Single message by ID
 /ms -chain 111 222 333                     # Chain mode — relay across 3 bots (reply required)
 /ms -chain 111 222 -sc @channel -mid 50   # Chain mode with manual source
->>>>>>> 2ecb89d (update)
 ```
 
 ---
 
-<<<<<<< HEAD
-=======
 ## Mode Dispatch (`new_event`)
 
 ```
@@ -208,21 +182,13 @@ relay bot stores its own reply (a single Telegram message), not the original con
 
 ---
 
->>>>>>> 2ecb89d (update)
 ## Key Classes
 
 | Class/Function | Description |
 |----------------|-------------|
 | `MsgStore` | Main class for message store operations |
-<<<<<<< HEAD
-| `ChatValidator` | Validates and resolves chat identifiers |
-| `MessageRangeValidator` | Validates message ID ranges with max limit |
-| `MsgStoreError` | Custom exception |
-| `get_messages_from_token()` | Convenience function for token retrieval |
-=======
 | `MessageRangeValidator` | Validates message ID ranges with max limit |
 | `MsgStoreError` | Custom exception |
 | `get_messages_from_token()` | Convenience function for token retrieval |
 | `_handle_chain_mode()` | Multi-bot chain link generator |
 | `_retrieve_messages()` | Internal retrieval — auto-expands media groups in single-msg mode |
->>>>>>> 2ecb89d (update)

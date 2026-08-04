@@ -1,14 +1,10 @@
 ---
 name: bot-market-patterns
-<<<<<<< HEAD
-description: Use this skill when working on the market module (bot/modules/market/). Covers product categories, callback schema, purchase flow, payment providers, and bundle products.
-=======
 description: >-
   Use this skill when working on the market module (bot/modules/market/). Covers
   product categories, callback schema, purchase flow, payment providers, and
   bundle products.
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Bot — Market Patterns
@@ -47,10 +43,7 @@ mrkt {identity} testbuy {product_id}      # test purchase (owner/dev only)
 mrkt {identity} validate {product_id}     # manual payment validation
 mrkt {identity} verify {product_id}       # pre-verify deliverability
 mrkt {identity} share {product_id}        # generate deep-link
-<<<<<<< HEAD
-=======
 mrkt {identity} stats {product_id}        # vip_chat only — query.answer popup with media counts
->>>>>>> 2ecb89d (update)
 mrkt {identity} trakteer_{method} {product_id}
 mrkt {identity} saweria_{method} {product_id}
 mrkt {identity} main_market               # switch to main bot's catalog
@@ -118,8 +111,6 @@ if category in (VIP_CHAT, PAID_MESSAGE):
         return
 ```
 
-<<<<<<< HEAD
-=======
 ## VIP Chat Stats
 
 `mrkt {identity} stats {product_id}` — available only on `vip_chat` product detail pages.
@@ -152,7 +143,6 @@ Added in `menu.py` product detail block, exclusively for `ProductCategory.VIP_CH
 
 ---
 
->>>>>>> 2ecb89d (update)
 **`vip_chat` auto-remove rule (enforced inside `verify_product`):**
 `vip_chat` products are **never** auto-removed regardless of the `auto_remove` argument passed by the caller. This is intentional: sellers can update the product's `chat_id` (e.g. after the original chat is restricted/TOS-removed) and existing buyers can re-claim a fresh invite link from their inventory. The `auto_remove` override happens at the service level inside `verify_product` itself — callers do not need to remember this.
 
@@ -191,12 +181,9 @@ Constraints: `price >= 1.0`, expire is `0` (Lifetime) or `86400s`–`31536000s` 
 - Replay attacks: `check_replay_attack()` on all webhook transactions
 - `preview_url`: only accepts `https://t.me/...` links
 - `product.owner_id == wallet_id` enforced in `ProductService.update_product`
-<<<<<<< HEAD
-=======
 - Wallet callbacks: `from_wallet_id`/`to_wallet_id` (`d2`/`d3`) ownership is verified against `user_id`
   before any transfer/clear action runs (bot owner/dev exempted) — prevents crafting callback
   data with another user's wallet id
->>>>>>> 2ecb89d (update)
 
 ---
 

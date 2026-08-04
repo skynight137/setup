@@ -5,7 +5,7 @@ description: >-
   bot/, web/, or database/ modules. Covers layer responsibility, file size
   limits, existing abstractions (TaskPolicy, AsyncPath), and the bot-to-database
   integration strategy.
-enabled: true
+enabled: false
 ---
 
 # Project Architecture Patterns

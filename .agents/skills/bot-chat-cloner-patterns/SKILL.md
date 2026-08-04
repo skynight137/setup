@@ -1,14 +1,10 @@
 ---
 name: bot-chat-cloner-patterns
-<<<<<<< HEAD
-description: Use this skill when working on the chat_cloner module (bot/modules/chat_cloner.py, bot/service/chat_cloner.py). Covers arguments, operation modes, source topic filtering, and multi-destination config.
-=======
 description: >-
   Use this skill when working on the chat_cloner module
   (bot/modules/chat_cloner.py, bot/service/chat_cloner.py). Covers arguments,
   operation modes, source topic filtering, and multi-destination config.
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Bot — Chat Cloner Patterns
@@ -46,21 +42,13 @@ bot/utils/bot_commands.py           # Commands: clone_chat = ["clonech", "cc"]
 | Flag | Format | Description |
 |------|--------|-------------|
 | `-sc` | `chat_id`, `chat_id:thread_id`, `chat_id:tid1,tid2,...` | Source chat — see topic filtering below |
-<<<<<<< HEAD
-| `-dc` | `chat_id`, `chat_id:thread_id`, `users`, `allusers`, `members[:chat_id]` | Destination chat |
-=======
 | `-dc` | `chat_id`, `chat_id:thread_id`, `users`, `bots`, `channels`, `supergroups`, `groups`, `members[:chat_id]`, `admin`, `creator` | Destination chat |
->>>>>>> 2ecb89d (update)
 | `-mid` | `start-end` or `single` | Message ID range (default: `1-10`) |
 | `-ft` | `video\|photo\|document\|...` | Filter by message type (pipe-separated) |
 | `-sz` | `min-max` (e.g. `1MB-500MB`) | Filter by file size range |
 | `-md` | `chat:thread;filter;size,chat2;filter2;size2` | Multi-destination config |
 | `-rep` | `{"old": "new"}` or `none` | Text replacement dict, or `none` to strip captions |
 | `-sync` | flag | Topic structure sync mode |
-<<<<<<< HEAD
-| `-f` | flag | Force run (no sleep between messages) |
-| `-w` | `bot_id` | Override worker bot |
-=======
 | `-f` | flag | Force run (batched — N sends then one sleep, then N more; no sleep every message) |
 | `-w` | `bot_id` | Override worker bot |
 | `-all` | flag | Broadcast peer target across ALL bot clients instead of just current one (dev only, 3× cost) |
@@ -80,7 +68,6 @@ Both targets snapshot the UserBot's dialog list at task-setup time and clone to 
 - Collected IDs stored in `task_config.dialog_chat_ids: list[int]`.
 - Service dispatched via `_clone_to_dialog_chats()` — iterates per destination chat, uses independent `seen_group_ids` sets for media-group deduplication.
 - Cost: standard 1× multiplier.
->>>>>>> 2ecb89d (update)
 
 ---
 
@@ -98,8 +85,6 @@ Both targets snapshot the UserBot's dialog list at task-setup time and clone to 
 
 ---
 
-<<<<<<< HEAD
-=======
 ## `-sync` — Smart Detection, Worker Dispatch & Edge Cases
 
 ### Source chat type detection (`_setup_topic_sync` step 1)
@@ -167,52 +152,12 @@ Only `create_forum_topic` (per individual topic) is wrapped in try/except — a 
 
 ---
 
->>>>>>> 2ecb89d (update)
 ## Operation Modes
 
 | Mode | Trigger | Handler |
 |------|---------|---------|
 | Single destination | Default (no `-md`, no `-sync`) | `_clone_single_destination()` |
 | Multi-destination | `-md` flag | `_clone_multi_destination()` |
-<<<<<<< HEAD
-| Topic sync | `-sync` flag | `_clone_topic_sync()` |
-| Broadcast | `-dc users` / `allusers` / `members` | `_clone_broadcast()` |
-
----
-
-## `iter_users` — Cursor Timeout Hazard & Keyset Pagination Fix
-
-`BotUsersCollection.iter_users` must iterate ALL users for a bot, which can be tens of
-thousands. A naïve `collection.find(...).batch_size(1000)` approach opens **one long-lived
-server-side cursor**. MongoDB keeps that cursor alive with a default 10-minute idle timeout.
-
-### Why a single cursor stops mid-iteration
-
-| Step | Clock |
-|------|-------|
-| `find()` — MongoDB returns first batch (≈1 000–1 001 docs) + cursor ID | t = 0 |
-| Caller processes each doc with `asyncio.sleep(send_delay)` | +0.76 s per user |
-| Local buffer exhausted, Motor calls `getMore` for batch 2 | t ≈ 760 s (12.7 min) |
-| Server cursor expired (default 10 min idle) → `CursorNotFound` | iteration stops |
-
-The exception escapes `iter_users`, is swallowed by the outer `except Exception` in the
-clone loop, and the task exits cleanly reporting `COMPLETED` at ~1 001 / 22 881.
-
-`no_cursor_timeout=True` is **not** the fix — it requires elevated MongoDB privileges and
-in some driver/server combinations causes the cursor to return only 1 document.
-
-### Fix — keyset pagination (fresh cursor per batch)
-
-```python
-async def iter_users(self, bot_id: int, batch_size: int = 1000) -> AsyncIterator[int]:
-    last_id = None
-    while True:
-        query: dict = {"bot_id": bot_id}
-        if last_id is not None:
-            query["_id"] = {"$gt": last_id}
-        docs = await (
-            self.collection.find(query, projection={"user_id": 1})
-=======
 | Topic sync | `-sync` flag | `_clone_with_sync()` |
 | Bot users | `-dc users` | `_clone_to_peers(PeerType.USER)` |
 | Bot bots | `-dc bots` | `_clone_to_peers(PeerType.BOT)` |
@@ -282,7 +227,6 @@ async def iter_peers(self, bot_id: int, peer_type: str, batch_size: int = 1000) 
     while True:
         docs = await (
             col.find({"type": peer_type, "_id": {"$gt": last_id}}, {"_id": 1})
->>>>>>> 2ecb89d (update)
             .sort("_id", ASCENDING)
             .limit(batch_size)
             .to_list(batch_size)
@@ -290,58 +234,6 @@ async def iter_peers(self, bot_id: int, peer_type: str, batch_size: int = 1000) 
         if not docs:
             break
         for doc in docs:
-<<<<<<< HEAD
-            yield doc["user_id"]
-        last_id = docs[-1]["_id"]
-```
-
-Each `find(...).limit(batch_size).to_list(...)` completes in milliseconds — no cursor sits
-idle on the server. The `_id` bookmark advances the window forward for the next batch.
-This is applied to both `iter_users` and `iter_all_users` in
-`database/collections/bot_users.py` and covers `-dc users`, `-dc allusers`, and broadcast.
-
----
-
-## `allusers` Client Filter Rule
-
-When `-dc allusers` is used, **only bot accounts** (`client.is_bot() == True`) are allowed to send messages.
-User clients (`is_bot() == False`) are excluded at **two layers**:
-
-1. **Population** (`bot/modules/special/chat_cloner.py`): `client_to_user_count` is built by iterating
-   `bot_manager.get_all_clients()` and skipping any client where `not bot_client.is_bot()`.
-
-2. **Execution guard** (`bot/service/chat_cloner.py`, `_clone_to_allusers`): any client that is
-   not connected OR `not bot_client.is_bot()` is added to `user_bots_info` and skipped during send.
-
-> **Important:** `start_menu`'s `client.user_tracker.record_user()` runs for every client type.
-> Users recorded under a user-client are simply never reached by `allusers` because user clients
-> are filtered out before querying `bot_users.get_user_count()`. No change to `record_user` is needed.
-
----
-
-## `_clone_to_allusers` — Send Architecture
-
-### Core invariant
-User IDs are **partitioned by `client_id`** in the DB. `iter_users(client_id)` yields only that
-bot's own users. Therefore each `(client, user)` pair is independent — no cross-client invalid-peer
-caching is needed or correct.
-
-### Per-message flow
-```
-worker.get_messages(source_chat_id, current_msg_id)   # fetched ONCE by main worker
-    ↓ source_message.empty? → skipped_count += 1, continue
-    ↓ text message? → text is already available, no download needed
-    ↓ media message? → _download_media_to_path() called ONCE, file_path reused by all clients/users
-    ↓ no text AND file_path is None? → skipped_count += 1, WARNING logged, continue
-      (covers: too large >50MB, download failed, unsupported type — poll/contact/location/etc.)
-
-for bot_client in active_clients:
-    async for user_id in iter_users(client_id):   # bot_id is the filter key
-        await _send_via_client(bot_client, source_message, user_id, file_path)
-        # on failure: log debug, failed_count += 1, continue — no peer ID caching
-```
-
-=======
             yield doc["_id"]
         last_id = docs[-1]["_id"]
 
@@ -470,7 +362,6 @@ Concurrent tasks cannot chain `file_id` (all tasks are dispatched before any res
 The force-run path (`_send_via_client_forced`) continues to upload from `file_path` for every user.
 Use sequential mode (default) when targeting large user counts with media.
 
->>>>>>> 2ecb89d (update)
 ### Critical: pre-validate message before user loop
 If `source_message.text` is falsy AND `file_path` is `None`, **skip the entire message** with
 `skipped_count += 1` and a WARNING. Do NOT enter the user loop — doing so would mark all
@@ -483,10 +374,7 @@ contains the full content (text / media metadata), and media is downloaded once 
 and sent from each bot client as a pre-uploaded file.
 
 ### `_send_via_client(bot_client, source_message, user_id, file_path)`
-<<<<<<< HEAD
-=======
 Used only by the **force-run path** and `_send_via_client_forced`.
->>>>>>> 2ecb89d (update)
 ```python
 # text message
 if source_message.text:
@@ -496,32 +384,12 @@ if source_message.text:
 if file_path:
     return await self._send_media_file(bot_client, user_id, file_path, source_message, replace_dict)
 
-<<<<<<< HEAD
-# any exception → log debug, return False → caller increments failed_count
-=======
 # any exception → log error, return False → caller increments failed_count
->>>>>>> 2ecb89d (update)
 ```
 - **No `get_messages` call** — content already in `source_message`.
 - **On failure**: returns `False`, caller increments `failed_count` and continues.
 - No `_invalid_peer_ids` caching in this path — failures are per-(client, user) pair.
 
-<<<<<<< HEAD
-### `_invalid_peer_ids` — removed
-This attribute has been removed. There is no persistent invalid-peer cache in any clone mode.
-On `PEER_ID_INVALID` exception: `skipped_count += 1`, log at DEBUG, continue to next user.
-Rationale: user IDs are per-bot, so a user being invalid for one send does not mean they are
-permanently invalid across all messages or bot clients.
-
-### `_has_sendable_content(message) → bool`
-```python
-return bool(message.text) or any(getattr(message, attr, None) for attr in MEDIA_ATTRS)
-```
-Used in ALL three clone methods **before** the per-user loop to skip messages that have no known
-sendable content (poll, contact, location, service message, etc.).
-- `users` / `members`: check before the user iterator
-- `allusers`: the `file_path is None` check after download already covers this case; `_has_sendable_content` is also used for consistency
-=======
 ### `_send_via_client_chained(bot_client, source_message, user_id, file_path, cached_file_id)`
 Used by the **sequential path** of `_clone_to_peers_by_all_clients` only.
 Returns `tuple[bool, str | None]` — (success, telegram_file_id).
@@ -604,7 +472,6 @@ normal operation.
 Blacklisted users increment `skipped_count` and are reported in the progress bar.
 
 ---
->>>>>>> 2ecb89d (update)
 
 ### Error string rule
 All Pyrogram error checks use `getattr(e, "MESSAGE", str(e))` per project rule #11 — never `str(e)` alone.
@@ -623,8 +490,6 @@ When `message.media_group_id` is set, `_copy_message` automatically dispatches t
 | set | None / `"none"` | `copy_media_group` (whole album) |
 | set | `dict` | `copy_message` per-message (fallback; preserves text replacement) |
 
-<<<<<<< HEAD
-=======
 ### `reply_markup` preservation
 
 Telegram's `copyMessage` API does **not** forward the source message's `reply_markup`. It must be passed explicitly. All `copy_message` calls (across every `replace_dict` branch) include `reply_markup=message.reply_markup` in `copy_kwargs`. The `send_message` path (used when `replace_dict` is dict + text-only message) also includes `reply_markup=message.reply_markup` in `send_kwargs`.
@@ -637,7 +502,6 @@ When `replace_dict` is a dict, the code uses `message.text.html` / `message.capt
 
 When `replace_dict is None`, `copy_message` copies the message verbatim — entities and reply_markup are both preserved (entities by Telegram, reply_markup by explicit kwarg).
 
->>>>>>> 2ecb89d (update)
 ### Deduplication — `seen_group_ids`
 
 In a sequential message-ID loop (single, multi, topic-sync), multiple IDs in the range may share the same `media_group_id`. `_copy_message` accepts an optional `seen_group_ids: set | None`:
@@ -711,8 +575,6 @@ TaskListener.on_clone_complete() / on_clone_error()
 
 ---
 
-<<<<<<< HEAD
-=======
 ## Force Run (`-f`) — Sequential Batched Execution
 
 When `task_config.force_run` is `True`, clone methods run **sequentially** (same `await
@@ -815,7 +677,6 @@ All six clone methods follow the unified pattern:
 
 ---
 
->>>>>>> 2ecb89d (update)
 ## Example Usage
 
 ```

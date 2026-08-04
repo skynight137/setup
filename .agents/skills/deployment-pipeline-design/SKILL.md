@@ -6,7 +6,7 @@ description: >-
   deployment pipelines, implementing canary rollout strategies, setting up
   multi-environment promotion workflows, or debugging failed deployment gates in
   CI/CD.
-enabled: true
+enabled: false
 ---
 
 # Deployment Pipeline Design

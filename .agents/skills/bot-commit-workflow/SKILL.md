@@ -1,14 +1,10 @@
 ---
 name: bot-commit-workflow
-<<<<<<< HEAD
-description: Use this skill at the end of every task to produce a conventional commit message and tg-update.md post. Covers commit format, type/scope rules, the agent amend workflow, tg-update.md structure, and the release flow.
-=======
 description: >-
   Use this skill at the end of every task to produce a conventional commit
   message and tg-update.md post. Covers commit format, type/scope rules, the
   agent amend workflow, tg-update.md structure, and the release flow.
 enabled: false
->>>>>>> 2ecb89d (update)
 ---
 
 # Bot Commit Workflow
@@ -56,11 +52,7 @@ feat(bot): add auto-retry on download failure
 fix(web): fix 500 error on /api/v2/wallet endpoint
 perf(database): replace find_one with indexed lookup in WalletsCollection
 refactor(aiopath): extract async helpers into separate file
-<<<<<<< HEAD
-chore(deps): update pyrotgfork to latest version
-=======
 chore(deps): update kurigram to latest version
->>>>>>> 2ecb89d (update)
 feat!: change API response format to envelope standard
 ```
 
@@ -134,8 +126,6 @@ Short one-line summary of what changed.
 
 **Do not edit version manually** — release-please manages it via the Release PR.
 - Config: `.github/release-please-config.json` and `.release-please-manifest.json`
-<<<<<<< HEAD
-=======
 
 ---
 
@@ -154,4 +144,3 @@ into conventional-commit form via `git filter-branch --msg-filter`.
 - Treat it as a template: update the base SHA and the commit-hash → message
   map inside the script for each new batch that needs rewording, rather than
   writing a new script from scratch.
->>>>>>> 2ecb89d (update)

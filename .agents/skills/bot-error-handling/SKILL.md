@@ -1,6 +1,7 @@
 ---
 name: bot-error-handling
 description: Use this skill when working with Pyrogram client code, _safe_execute wrappers, client startup/error flows, or any code that accesses client.me, bot_id, or config_bot. Covers critical re-raise rules and client.me guard patterns.
+enabled: false
 ---
 
 # Bot Error Handling — Pyrogram Client Patterns

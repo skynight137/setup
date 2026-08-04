@@ -1,15 +1,11 @@
 ---
 name: bot-client-patterns
-<<<<<<< HEAD
-description: Use this skill when working with bot/client/ — PyroClient properties, plugin management, TelegramAPIBridge, _safe_execute, FloodWait handling, or adding client-level functionality. Covers PyroClient properties, identity, managers, utility methods, and the TelegramAPIBridge.
-=======
 description: >-
   Use this skill when working with bot/client/ — PyroClient properties, plugin
   management, TelegramAPIBridge, _safe_execute, FloodWait handling, or adding
   client-level functionality. Covers PyroClient properties, identity, managers,
   utility methods, and the TelegramAPIBridge.
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Bot Client Patterns
@@ -22,13 +18,8 @@ enabled: true
 
 | File | Contents |
 |------|----------|
-<<<<<<< HEAD
-| `pyro_client.py` | `PyroClient` — core class: identity properties, config access, lifecycle (`start`/`stop`/`restart`), session/task helpers |
-| `wrap_client.py` | `WrapClient`, `_safe_execute`, `_handle_flood_wait`, `_inject_default_params`, `DroppingQueue`, `wrap_pyrogram_methods` |
-=======
 | `pyro_client.py` | `PyroClient` — core class: identity properties, config access, lifecycle (`start`/`stop`/`restart`), session/task helpers. Uses `Cache` from `utils/lru_cache.py` for `message_cache` and `business_user_connection_cache` (maxsize from `TelegramModel.max_message_cache_size`, default 256 ≈ 1 MB). |
 | `wrap_client.py` | `WrapClient`, `_safe_execute`, `_handle_flood_wait`, `_inject_default_params`, `PriorityDropQueue` (aliased as `DroppingQueue` — simple bounded drop-when-full queue), `wrap_pyrogram_methods` |
->>>>>>> 2ecb89d (update)
 | `mixin_status.py` | `StatusMixin` — `get_tasks_status_message`, `send_status`, `update_status`, `delete_status` |
 | `mixin_messaging.py` | `MessagingMixin` — `send_log`, `wait_for_message`, `get_tg_link_message`, `get_topup_message_buttons`, `get_chat_id` |
 | `mixin_plugin.py` | `PluginMixin` — plugin add/remove, bot-command sync, `remove_handler` override |
@@ -91,16 +82,6 @@ client.telegram_bridge    # TelegramAPIBridge (if configured)
 ### Access Control
 
 ```python
-<<<<<<< HEAD
-client.sudos             # list[int] — sudo user IDs
-client.auths             # dict — authorized users per command
-client.blacklists        # list[int] — blocked user IDs
-client.force_sub_chats   # list[int] — required subscription chats
-client.vip_chats         # list[int] — VIP chat IDs from products
-client.rss_chats         # dict — RSS feed target chats
-```
-
-=======
 client.sudos                  # list[int] — sudo user IDs
 client.auths                  # dict — authorized users per command
 client.blacklists             # list[int] — blocked user IDs
@@ -117,7 +98,6 @@ client.rss_chats              # dict — RSS feed target chats
 > Call `await client.refresh_force_sub_invite_links(chat_id=None)` after updating
 > force-sub config to reload all links without a full restart.
 
->>>>>>> 2ecb89d (update)
 ### Helpers
 
 ```python
@@ -137,10 +117,6 @@ client.user_tracker      # User interaction tracking
 ### `send_log(text, is_private=False)`
 Send log via TelegramAPIBridge (best-effort, non-blocking).
 
-<<<<<<< HEAD
-### `wait_for_message(query_or_message, pfunc, rfunc=None, doc=False, pho=False, text=True)`
-Wait for user input with `GlobalConfig.input_timeout_seconds` timeout.
-=======
 **Standard dual-logging pattern** — always pair `_logger` + `send_log` for important events
 so operators see them in both system logs and Telegram simultaneously:
 
@@ -171,7 +147,6 @@ if self.client:
 ### `wait_for_message(query_or_message, pfunc, rfunc=None, doc=False, pho=False, text=True)`
 Wait for user input with `GlobalConfig.input_timeout_seconds` timeout.  
 **Implementation:** event-driven via `asyncio.Event` — no polling loop. The internal handler sets `event_flag` when a matching message arrives; `asyncio.wait({t_msg, t_cancel}, timeout=..., return_when=FIRST_COMPLETED)` suspends until either fires. Zero CPU overhead regardless of how many users are concurrently waiting.
->>>>>>> 2ecb89d (update)
 
 ```python
 # Wait for text reply
@@ -188,11 +163,6 @@ Dynamically enable/disable plugins, reload handlers, persist to DB.
 await client.add_or_remove_plugin(include="mirror_leech")
 await client.add_or_remove_plugin(exclude="admin")
 plugins = await client.get_include_plugins()
-<<<<<<< HEAD
-available = client.available_plugins
-```
-
-=======
 available = client.available_plugins   # scans bot/plugins/*.py
 ```
 
@@ -217,7 +187,6 @@ types = get_plugin_update_types("tools")  # ["message", "callback_query", "inlin
 
 **Important:** `available_plugins` (cached property) scans `*.py` files; manifests are loaded from `*.yaml` files. A plugin can exist without a manifest (graceful empty defaults), but **webhook mode silently drops updates for undeclared update types** — always create a YAML alongside any new `bot/plugins/<name>.py`.
 
->>>>>>> 2ecb89d (update)
 ### `get_tg_link_message(link)`
 Parse Telegram message link and fetch the message. Supports ranges.
 
@@ -241,24 +210,13 @@ await client.get_system_stats() # CPU, memory, disk (cached 5s)
 
 ## _safe_execute (Automatic)
 
-<<<<<<< HEAD
-All Pyrogram send methods are wrapped via `wrap_pyrogram_methods()` with:
-=======
 All Pyrogram **public async methods** are wrapped via `wrap_pyrogram_methods()` with:
->>>>>>> 2ecb89d (update)
 
 | Error | Handling |
 |-------|---------|
 | `FloodWait` | Sleep + retry (up to 3x by default; unlimited if `accept_all_floodwait=True`) |
 | `FloodPremiumWait` | Same as FloodWait |
 | `MessageTooLong` | Convert to document upload |
-<<<<<<< HEAD
-| `MediaCaptionTooLong` | Truncate caption |
-| Invalid markup | Strip markup + retry |
-| Ignorable errors | Return `None` |
-
-**Critical rule**: Do not catch `FloodWait` manually in module code — `_safe_execute` handles it. See `bot-error-handling` skill for full rules.
-=======
 | `MediaCaptionTooLong` | Truncate caption + retry via `_safe_execute(depth+1)` |
 | Invalid markup | Strip markup + retry via `_safe_execute(depth+1)` |
 | Ignorable errors | Return `None` |
@@ -364,7 +322,6 @@ Key design rules:
   confirm membership, so requiring the join is correct)
 - **Never show ⚠️** to the end user for transient API errors — it is not actionable
 - `invite_link is None` (bot not admin) → show non-URL callback button + log in user state
->>>>>>> 2ecb89d (update)
 
 ---
 
@@ -407,13 +364,8 @@ if client.telegram_bridge:
     await client.telegram_bridge.send_document(chat_id, doc_path)
 
 # File size limits (raises exception if exceeded):
-<<<<<<< HEAD
-TelegramAPIBridge.check_file_size(file_size, "document")  # 50MB
-TelegramAPIBridge.check_file_size(file_size, "photo")     # 10MB
-=======
 TelegramAPIBridge.file_size_approved(file_size, "document")  # 50MB
 TelegramAPIBridge.file_size_approved(file_size, "photo")     # 10MB
->>>>>>> 2ecb89d (update)
 ```
 
 ```python
@@ -429,8 +381,6 @@ Configured via `BotConfig.multi_bot_tokens` (list of tokens for rotation).
 
 ---
 
-<<<<<<< HEAD
-=======
 ## MongoDB Session Storage (`MongoStorage`)
 
 All persistent clients use `MongoStorage` (`bot/client/mongo_storage.py`) instead of the default SQLite `.session` file. This is the **Single Source of Truth** for Pyrogram session data — any VPS node can start a client from the same MongoDB auth_key, eliminating `AuthKeyDuplicated` errors when moving deployments.
@@ -490,7 +440,6 @@ The temporary validation client in `TelegramService` uses a plain `pyrogram.Clie
 
 ---
 
->>>>>>> 2ecb89d (update)
 ## PyroClient Lifecycle
 
 ```python
@@ -501,8 +450,6 @@ await client.restart()  # Graceful restart
 
 ---
 
-<<<<<<< HEAD
-=======
 ## Webhook vs Polling Mode (`no_updates`)
 
 Controlled by **`BotModel.no_updates`** (per-bot, persisted in DB under the bot collection, requires restart):
@@ -545,7 +492,6 @@ Pyrogram's `Client` reads `self.no_updates` during `start()` to decide whether t
 
 ---
 
->>>>>>> 2ecb89d (update)
 ## BotConfig Integration
 
 `config_bot` is a `@property` (not `@cached_property`) — it calls `BotConfig.get_instance(bot_id)` on every access, returning the live object from `collection.cache`. No cache reset is needed when config fields change; `update_fields()` updates the cached model in-place.
@@ -559,10 +505,6 @@ PyroClient reads from `BotConfig`:
 | `bot_disable_link_preview` | Injected into text sends |
 | `bot_has_spoiler` | Injected into media sends |
 | `bot_supports_streaming` | Injected into video sends |
-<<<<<<< HEAD
-| `bot_max_concurrent_transmissions` | Upload/download concurrency |
-=======
->>>>>>> 2ecb89d (update)
 | `accept_all_floodwait` | Unlimited FloodWait retries |
 | `plugins` | List of enabled plugins |
 | `multi_bot_tokens` | Tokens for TelegramAPIBridge |

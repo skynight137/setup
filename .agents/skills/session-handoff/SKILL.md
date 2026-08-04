@@ -10,7 +10,7 @@ description: >-
   after substantial work (multiple file edits, complex debugging, architecture
   decisions). Solves long-running agent context exhaustion by enabling fresh
   agents to continue with zero ambiguity.
-enabled: true
+enabled: false
 ---
 
 # Handoff

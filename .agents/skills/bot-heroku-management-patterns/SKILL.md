@@ -6,7 +6,7 @@ description: >-
   callback schema, view/edit state, dyno control, backup/restore, add var,
   API call patterns, edit flow, eco-dyno quota display, per-app quota breakdown,
   create app wizard, and API key input flow.
-enabled: true
+enabled: false
 ---
 
 # Bot — Heroku Management Patterns

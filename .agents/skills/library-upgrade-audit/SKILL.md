@@ -5,6 +5,7 @@ description: >-
   library version introduces features that could improve current usage patterns.
   Also use when the user says "check if X improved", "does X Y.Z help us", or
   "audit our usage of X".
+enabled: false
 ---
 
 # Library Upgrade Audit

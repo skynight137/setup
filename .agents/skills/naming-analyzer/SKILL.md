@@ -1,6 +1,7 @@
 ---
 name: naming-analyzer
 description: Suggest better variable, function, and class names based on context and conventions.
+enabled: false
 ---
 
 # Naming Analyzer Skill

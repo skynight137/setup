@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 ---
 name: project-log-reader
 description: >-
@@ -7,10 +5,9 @@ description: >-
   confirming fix outcomes without relying on workflow console. Use when
   debugging bot behavior, verifying a fix landed, or checking service startup
   after a workflow restart.
-enabled: true
+enabled: false
 ---
 
->>>>>>> 2ecb89d (update)
 # Project Log Reader
 
 ## Overview

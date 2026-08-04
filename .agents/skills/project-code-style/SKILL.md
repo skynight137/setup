@@ -4,7 +4,7 @@ description: >-
   Use this skill when writing or reviewing Python code in this project. Covers
   import style, naming conventions, performance patterns, ClassVar usage, config
   hierarchy, and dead-code activation checklist.
-enabled: true
+enabled: false
 ---
 
 # Project Code Style

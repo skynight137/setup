@@ -1,6 +1,7 @@
 ---
 name: bot-architecture
 description: Use this skill when designing, refactoring, or reviewing code structure in bot/, web/, or database/ modules. Covers layer responsibility, file size limits, existing abstractions (TaskPolicy, AsyncPath), and the bot-to-database integration strategy.
+enabled: false
 ---
 
 # Bot Architecture Patterns

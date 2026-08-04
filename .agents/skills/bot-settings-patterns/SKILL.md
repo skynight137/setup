@@ -1,14 +1,10 @@
 ---
 name: bot-settings-patterns
-<<<<<<< HEAD
-description: Use this skill when working on settings modules (bot/modules/settings/bots/ or users.py). Covers bot_manage and userset callback schemas, state management, reply contract, and handler routing.
-=======
 description: >-
   Use this skill when working on settings modules (bot/modules/settings/bots/ or
   users.py). Covers bot_manage and userset callback schemas, state management,
   reply contract, and handler routing.
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Bot — Settings Patterns
@@ -20,11 +16,7 @@ Reference for settings modules: `bot/modules/settings/bots/` (package) and `bot/
 | File | Responsibility |
 |------|---------------|
 | `__init__.py` | Re-exports public API — `bot_settings`, `bot_settings_callback`, `bot_manage_menu`, `bot_manage_callback` |
-<<<<<<< HEAD
-| `_constants.py` | Module-level shared constants: `SERVICE_ACTIONS`, `SERVICE_ALIASES`, `telegram_service`, `global_config`, `bot_config`, `BOT_CONFIG_KEYS*`, `BOT_BUNDLE_KEYS` |
-=======
 | `_constants.py` | Module-level shared constants: `SERVICE_ACTIONS`, `SERVICE_ALIASES`, `telegram_service`, `global_config`, `bot_config`, `BOT_CONFIG_KEYS`, `BOT_CONFIG_EXCLUDE_KEYS`, `BOT_CONFIG_EXCLUDE_KEYS_EXTENDED`, `BOT_BUNDLE_KEYS` |
->>>>>>> 2ecb89d (update)
 | `_helpers.py` | Input handler functions: `validate_and_restore_bot_config`, `edit_global_config`, `edit_bot_config`, `edit_service_config`, `update_server_config_file`, `add_new_bot_input` |
 | `_bot_settings.py` | `bot_settings` (renderer) + `bot_settings_callback` (callback handler for `BOT_SET` prefix) |
 | `_bot_manage.py` | `bot_manage_menu` (renderer) + `bot_manage_callback` (callback handler for `BOT_MANAGE` prefix) |
@@ -37,50 +29,30 @@ Imports in `basic.py` (`from bot.modules.settings.bots import ...`) remain uncha
 
 ```python
 # Bot settings
-<<<<<<< HEAD
-@Client.on_message(filters.command(BotCommands.bot_settings) & filters.private)
-=======
 @Client.on_message(filters.command(BotCommands.bot_settings) & filters.private_bot)
->>>>>>> 2ecb89d (update)
 async def _bot_settings(client, message):
     from bot.modules.settings.bots import bot_settings
     await bot_settings(client, message, reply=True)
 
-<<<<<<< HEAD
-@Client.on_callback_query(filters.regex(f"^{CallbackPrefix.BOT_SET}") & filters.private)
-=======
 @Client.on_callback_query(filters.regex(f"^{CallbackPrefix.BOT_SET}") & filters.private_bot)
->>>>>>> 2ecb89d (update)
 @new_task
 async def _bot_settings_callback(client, query):
     from bot.modules.settings.bots import bot_settings_callback
     await bot_settings_callback(client, query)
 
-<<<<<<< HEAD
-@Client.on_callback_query(filters.regex(f"^{CallbackPrefix.BOT_MANAGE}") & filters.private)
-=======
 @Client.on_callback_query(filters.regex(f"^{CallbackPrefix.BOT_MANAGE}") & filters.private_bot)
->>>>>>> 2ecb89d (update)
 @new_task
 async def _bot_manage_callback(client, query):
     from bot.modules.settings.bots import bot_manage_callback
     await bot_manage_callback(client, query)
 
 # User settings
-<<<<<<< HEAD
-@Client.on_message(filters.command(BotCommands.user_settings) & filters.private)
-=======
 @Client.on_message(filters.command(BotCommands.user_settings) & filters.private_bot)
->>>>>>> 2ecb89d (update)
 async def _user_settings(client, message):
     from bot.modules.settings.users import user_settings
     await user_settings(client, message, reply=True)
 
-<<<<<<< HEAD
-@Client.on_callback_query(filters.regex(f"^{CallbackPrefix.USER_SET}") & filters.private)
-=======
 @Client.on_callback_query(filters.regex(f"^{CallbackPrefix.USER_SET}") & filters.private_bot)
->>>>>>> 2ecb89d (update)
 @new_task
 async def _user_settings_callback(client, query):
     from bot.modules.settings.users import user_settings_callback
@@ -103,13 +75,9 @@ This keeps one persistent message toggled between views — no stale messages ac
 ```
 # Root level (no bot selected)
 bot_manage {user_id} add
-<<<<<<< HEAD
-bot_manage {user_id} allbots                    # dev only
-=======
 bot_manage {user_id} bulk {start|stop|restart}                  # owner-scoped bulk action
 bot_manage {user_id} allbots                                    # dev only
 bot_manage {user_id} filter {all|connected|disconnected}        # dev only — allbots status filter
->>>>>>> 2ecb89d (update)
 bot_manage {user_id} ps {new_start} [allbots]
 bot_manage {user_id} back
 bot_manage {user_id} close
@@ -131,11 +99,8 @@ bot_manage {user_id} {bot_id} close
 
 **Ownership check**: `user_bot.owner_id != user_id` → reject. **Dev bypass**: skip ownership check when `user_id == client.dev_id`.
 
-<<<<<<< HEAD
-=======
 **Server-wide client limit** (`add` action): before showing the input form, non-dev users are checked against `GlobalConfig.max_total_clients`. If `max_total_clients > 0` and `len(bot_manager.get_all_clients()) >= max_total_clients`, the callback answers with `show_alert=True` and returns early. Dev always bypasses this check. `max_total_clients = 0` means unlimited.
 
->>>>>>> 2ecb89d (update)
 **64-byte limit reminder**: longest realistic string ~45 bytes. Always verify with `len(cb.encode())`.
 
 ---
@@ -175,10 +140,7 @@ state = client.state.get_user_state(user_id)  # shared mutable dict — no expli
 | `UserStateKeys.STATE` | `MenuStates.VIEW` or `MenuStates.EDIT` |
 | `UserStateKeys.START` | 0-based page offset for paginated list |
 | `UserStateKeys.CURRENT_KEY` | Active action/section; reset to 0 when action changes |
-<<<<<<< HEAD
-=======
 | `UserStateKeys.STATUS_FILTER` | `"all"` (default) / `"connected"` / `"disconnected"` — allbots connection filter; persists across visits |
->>>>>>> 2ecb89d (update)
 
 ---
 
@@ -198,12 +160,6 @@ state = client.state.get_user_state(user_id)  # shared mutable dict — no expli
 
 | Constant | Purpose |
 |----------|---------|
-<<<<<<< HEAD
-| `BOT_CONFIG_KEYS_ALIAS` | Ordered list of config key aliases for pagination |
-| `BOT_CONFIG_EXCLUDE_KEYS` | Identity fields never reset: `{id, owner_id, bot_token, session_string, node_id}` |
-| `BOT_BUNDLE_KEYS` | Keys locked to view-only when a bot bundle is active |
-| `CallbackPrefix.BOT_SET` | `"botset"` — used for back-navigation to parent settings |
-=======
 | `BOT_CONFIG_KEYS` | Ordered list of BotConfig field names used for pagination and index-based callbacks |
 | `BOT_CONFIG_EXCLUDE_KEYS` | Identity fields never reset: `{id, owner_id, bot_token, session_string, node_id}` |
 | `BOT_CONFIG_EXCLUDE_KEYS_EXTENDED` | Superset of exclude keys used when building the crud button list |
@@ -257,4 +213,3 @@ for abs_idx, key in enumerate(BOT_CONFIG_KEYS):
 field_name = BOT_CONFIG_KEYS[int(d4)]              # for bot_manage (BotConfig)
 field_name = model.get_field_by_index(int(d3), exclude={"id"})  # for bot_settings (service/global)
 ```
->>>>>>> 2ecb89d (update)

@@ -9,7 +9,7 @@ description: >-
   managing a tech stack file, defining development workflows, tracking work
   units, onboarding to an existing codebase, or running project scaffolding.
 version: 1.0.0
-enabled: true
+enabled: false
 ---
 
 # Context-Driven Development

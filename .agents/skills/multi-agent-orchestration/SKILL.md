@@ -6,7 +6,7 @@ description: >-
   delegation, workflow orchestration, and result aggregation. Use when building
   coordinated agent teams, complex workflows, or systems requiring specialized
   expertise across domains.
-enabled: true
+enabled: false
 ---
 
 # Multi-Agent Orchestration

@@ -1,7 +1,7 @@
 ---
 name: base-collection-lru
 description: Use when choosing a cache strategy for a new BaseCollection subclass, deciding whether to pass max_size, or working on users/wallets collections where LRU mode and MongoDB fallback on cache miss are active.
-enabled: true
+enabled: false
 ---
 
 # BaseCollection LRU Mode

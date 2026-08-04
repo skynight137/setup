@@ -1,13 +1,9 @@
 ---
 name: dispatching-parallel-agents
-<<<<<<< HEAD
-description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
-=======
 description: >-
   Use when facing 2+ independent tasks that can be worked on without shared
   state or sequential dependencies
 enabled: false
->>>>>>> 2ecb89d (update)
 ---
 
 # Dispatching Parallel Agents
@@ -72,16 +68,6 @@ Each agent gets:
 
 ### 3. Dispatch in Parallel
 
-<<<<<<< HEAD
-```typescript
-// In Claude Code / AI environment
-Task("Fix agent-tool-abort.test.ts failures")
-Task("Fix batch-completion-behavior.test.ts failures")
-Task("Fix tool-approval-race-conditions.test.ts failures")
-// All three run concurrently
-```
-
-=======
 Issue all three subagent dispatches in the same response — they run in parallel:
 
 ```text
@@ -93,7 +79,6 @@ Subagent (general-purpose): "Fix tool-approval-race-conditions.test.ts failures"
 
 Multiple dispatch calls in one response = parallel execution. One per response = sequential.
 
->>>>>>> 2ecb89d (update)
 ### 4. Review and Integrate
 
 When agents return:

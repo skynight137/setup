@@ -1,9 +1,5 @@
 ---
 name: ai-social-media-content
-<<<<<<< HEAD
-description: "Create AI-powered social media content for TikTok, Instagram, YouTube, Twitter/X. Generate: images, videos, reels, shorts, thumbnails, captions, hashtags. Tools: FLUX, Veo, Seedance, Wan, Kokoro TTS, Claude for copywriting. Use for: content creators, social media managers, influencers, brands. Triggers: social media content, tiktok, instagram reels, youtube shorts, twitter post, content creator, ai influencer, social content, reels, shorts, viral content, thumbnail generator, caption generator, hashtag generator, ugc content"
-allowed-tools: Bash(infsh *)
-=======
 description: >-
   Create AI-powered social media content for TikTok, Instagram, YouTube,
   Twitter/X. Generate: images, videos, reels, shorts, thumbnails, captions,
@@ -15,7 +11,6 @@ description: >-
   content
 allowed-tools: Bash(infsh *)
 enabled: false
->>>>>>> 2ecb89d (update)
 ---
 
 # AI Social Media Content

@@ -1,6 +1,7 @@
 ---
 name: writing-skills
 description: Use when creating new skills, editing existing skills, or verifying skills work before deployment
+enabled: false
 ---
 
 # Writing Skills
@@ -9,11 +10,7 @@ description: Use when creating new skills, editing existing skills, or verifying
 
 **Writing skills IS Test-Driven Development applied to process documentation.**
 
-<<<<<<< HEAD
-**Personal skills live in agent-specific directories (`~/.claude/skills` for Claude Code, `~/.agents/skills/` for Codex)** 
-=======
 **Personal skills live in your runtime's skills directory** — see [claude-code-tools.md](../using-superpowers/references/claude-code-tools.md), [codex-tools.md](../using-superpowers/references/codex-tools.md), [copilot-tools.md](../using-superpowers/references/copilot-tools.md), or [gemini-tools.md](../using-superpowers/references/gemini-tools.md) for the path on your runtime. Codex, Copilot CLI, and Gemini CLI all also recognize `~/.agents/skills/` as a cross-runtime alias.
->>>>>>> 2ecb89d (update)
 
 You write test cases (pressure scenarios with subagents), watch them fail (baseline behavior), write the skill (documentation), watch tests pass (agents comply), and refactor (close loopholes).
 
@@ -25,11 +22,7 @@ You write test cases (pressure scenarios with subagents), watch them fail (basel
 
 ## What is a Skill?
 
-<<<<<<< HEAD
-A **skill** is a reference guide for proven techniques, patterns, or tools. Skills help future Claude instances find and apply effective approaches.
-=======
 A **skill** is a reference guide for proven techniques, patterns, or tools. Skills help future agents find and apply effective approaches.
->>>>>>> 2ecb89d (update)
 
 **Skills are:** Reusable techniques, patterns, tools, reference guides
 
@@ -63,11 +56,7 @@ The entire skill creation process follows RED-GREEN-REFACTOR.
 **Don't create for:**
 - One-off solutions
 - Standard practices well-documented elsewhere
-<<<<<<< HEAD
-- Project-specific conventions (put in CLAUDE.md)
-=======
 - Project-specific conventions (put in your instructions file)
->>>>>>> 2ecb89d (update)
 - Mechanical constraints (if it's enforceable with regex/validation, automate it—save documentation for judgment calls)
 
 ## Skill Types
@@ -105,21 +94,13 @@ skills/
 ## SKILL.md Structure
 
 **Frontmatter (YAML):**
-<<<<<<< HEAD
-- Only two fields supported: `name` and `description`
-=======
 - Two required fields: `name` and `description` (see [agentskills.io/specification](https://agentskills.io/specification) for all supported fields)
->>>>>>> 2ecb89d (update)
 - Max 1024 characters total
 - `name`: Use letters, numbers, and hyphens only (no parentheses, special chars)
 - `description`: Third-person, describes ONLY when to use (NOT what it does)
   - Start with "Use when..." to focus on triggering conditions
   - Include specific symptoms, situations, and contexts
-<<<<<<< HEAD
-  - **NEVER summarize the skill's process or workflow** (see CSO section for why)
-=======
   - **NEVER summarize the skill's process or workflow** (see SDO section for why)
->>>>>>> 2ecb89d (update)
   - Keep under 500 characters if possible
 
 ```markdown
@@ -157,15 +138,6 @@ Concrete results
 ```
 
 
-<<<<<<< HEAD
-## Claude Search Optimization (CSO)
-
-**Critical for discovery:** Future Claude needs to FIND your skill
-
-### 1. Rich Description Field
-
-**Purpose:** Claude reads description to decide which skills to load for a given task. Make it answer: "Should I read this skill right now?"
-=======
 ## Skill Discovery Optimization (SDO)
 
 **Critical for discovery:** Future agents need to FIND your skill
@@ -173,7 +145,6 @@ Concrete results
 ### 1. Rich Description Field
 
 **Purpose:** Your agent reads the description to decide which skills to load for a given task. Make it answer: "Should I read this skill right now?"
->>>>>>> 2ecb89d (update)
 
 **Format:** Start with "Use when..." to focus on triggering conditions
 
@@ -181,16 +152,6 @@ Concrete results
 
 The description should ONLY describe triggering conditions. Do NOT summarize the skill's process or workflow in the description.
 
-<<<<<<< HEAD
-**Why this matters:** Testing revealed that when a description summarizes the skill's workflow, Claude may follow the description instead of reading the full skill content. A description saying "code review between tasks" caused Claude to do ONE review, even though the skill's flowchart clearly showed TWO reviews (spec compliance then code quality).
-
-When the description was changed to just "Use when executing implementation plans with independent tasks" (no workflow summary), Claude correctly read the flowchart and followed the two-stage review process.
-
-**The trap:** Descriptions that summarize workflow create a shortcut Claude will take. The skill body becomes documentation Claude skips.
-
-```yaml
-# ❌ BAD: Summarizes workflow - Claude may follow this instead of reading skill
-=======
 **Why this matters:** Testing revealed that when a description summarizes the skill's workflow, an agent may follow the description instead of reading the full skill content. A description saying "code review between tasks" caused an agent to do ONE review, even though the skill's flowchart clearly showed TWO reviews (spec compliance then code quality).
 
 When the description was changed to just "Use when executing implementation plans with independent tasks" (no workflow summary), the agent correctly read the flowchart and followed the two-stage review process.
@@ -199,7 +160,6 @@ When the description was changed to just "Use when executing implementation plan
 
 ```yaml
 # ❌ BAD: Summarizes workflow - agents may follow this instead of reading skill
->>>>>>> 2ecb89d (update)
 description: Use when executing plans - dispatches subagent per task with code review between tasks
 
 # ❌ BAD: Too much process detail
@@ -239,11 +199,7 @@ description: Use when using React Router and handling authentication redirects
 
 ### 2. Keyword Coverage
 
-<<<<<<< HEAD
-Use words Claude would search for:
-=======
 Use words an agent would search for:
->>>>>>> 2ecb89d (update)
 - Error messages: "Hook timed out", "ENOTEMPTY", "race condition"
 - Symptoms: "flaky", "hanging", "zombie", "pollution"
 - Synonyms: "timeout/hang/freeze", "cleanup/teardown/afterEach"
@@ -320,11 +276,7 @@ wc -w skills/path/SKILL.md
 - `creating-skills`, `testing-skills`, `debugging-with-logs`
 - Active, describes the action you're taking
 
-<<<<<<< HEAD
-### 4. Cross-Referencing Other Skills
-=======
 ### 5. Cross-Referencing Other Skills
->>>>>>> 2ecb89d (update)
 
 **When writing documentation that references other skills:**
 
@@ -362,11 +314,7 @@ digraph when_flowchart {
 - Linear instructions → Numbered lists
 - Labels without semantic meaning (step1, helper2)
 
-<<<<<<< HEAD
-See @graphviz-conventions.dot for graphviz style rules.
-=======
 See `graphviz-conventions.dot` in this directory for graphviz style rules.
->>>>>>> 2ecb89d (update)
 
 **Visualizing for your human partner:** Use `render-graphs.js` in this directory to render a skill's flowcharts to SVG:
 ```bash
@@ -509,8 +457,6 @@ Different skill types need different test approaches:
 
 **All of these mean: Test before deploying. No exceptions.**
 
-<<<<<<< HEAD
-=======
 ## Match the Form to the Failure
 
 Before writing guidance, classify the baseline failure. The form that bulletproofs one failure type measurably backfires on another.
@@ -528,16 +474,12 @@ Before writing guidance, classify the baseline failure. The form that bulletproo
 - **No nuance clauses.** "Don't X unless it matters" reopens the negotiation — appending a single nuance clause to a winning recipe degraded it from consistent to noisy in the same wording tests. Express a real exception as its own conditional on an observable predicate.
 - **Exemption clauses don't scope.** "This limit doesn't apply to code blocks" still suppresses code blocks. If part of the output must be exempt, restructure so the rule can't reach it.
 
->>>>>>> 2ecb89d (update)
 ## Bulletproofing Skills Against Rationalization
 
 Skills that enforce discipline (like TDD) need to resist rationalization. Agents are smart and will find loopholes when under pressure.
 
-<<<<<<< HEAD
-=======
 **Scope:** this toolkit is for discipline failures — an agent that knows the rule and skips it under pressure. For wrong-shaped output or omitted elements, prohibition-based bulletproofing backfires; use the forms in Match the Form to the Failure instead.
 
->>>>>>> 2ecb89d (update)
 **Psychology note:** Understanding WHY persuasion techniques work helps you apply them systematically. See persuasion-principles.md for research foundation (Cialdini, 2021; Meincke et al., 2025) on authority, commitment, scarcity, social proof, and unity principles.
 
 ### Close Every Loophole Explicitly
@@ -600,11 +542,7 @@ Make it easy for agents to self-check when rationalizing:
 **All of these mean: Delete code. Start over with TDD.**
 ```
 
-<<<<<<< HEAD
-### Update CSO for Violation Symptoms
-=======
 ### Update SDO for Violation Symptoms
->>>>>>> 2ecb89d (update)
 
 Add to description: symptoms of when you're ABOUT to violate the rule:
 
@@ -635,9 +573,6 @@ Run same scenarios WITH skill. Agent should now comply.
 
 Agent found new rationalization? Add explicit counter. Re-test until bulletproof.
 
-<<<<<<< HEAD
-**Testing methodology:** See @testing-skills-with-subagents.md for the complete testing methodology:
-=======
 ### Micro-Test Wording Before Full Scenarios
 
 Full pressure-scenario runs are the final gate, but they are slow and expensive per iteration. Verify the wording itself first with micro-tests:
@@ -651,7 +586,6 @@ Full pressure-scenario runs are the final gate, but they are slow and expensive 
 Micro-tests verify wording; they do not replace pressure scenarios for discipline skills.
 
 **Testing methodology:** See [testing-skills-with-subagents.md](testing-skills-with-subagents.md) for the complete testing methodology:
->>>>>>> 2ecb89d (update)
 - How to write pressure scenarios
 - Pressure types (time, sunk cost, authority, exhaustion)
 - Plugging holes systematically
@@ -693,11 +627,7 @@ Deploying untested skills = deploying untested code. It's a violation of quality
 
 ## Skill Creation Checklist (TDD Adapted)
 
-<<<<<<< HEAD
-**IMPORTANT: Use TodoWrite to create todos for EACH checklist item below.**
-=======
 **IMPORTANT: Create a todo for EACH checklist item below.**
->>>>>>> 2ecb89d (update)
 
 **RED Phase - Write Failing Test:**
 - [ ] Create pressure scenarios (3+ combined pressures for discipline skills)
@@ -706,21 +636,14 @@ Deploying untested skills = deploying untested code. It's a violation of quality
 
 **GREEN Phase - Write Minimal Skill:**
 - [ ] Name uses only letters, numbers, hyphens (no parentheses/special chars)
-<<<<<<< HEAD
-- [ ] YAML frontmatter with only name and description (max 1024 chars)
-=======
 - [ ] YAML frontmatter with required `name` and `description` fields (max 1024 chars; see [spec](https://agentskills.io/specification))
->>>>>>> 2ecb89d (update)
 - [ ] Description starts with "Use when..." and includes specific triggers/symptoms
 - [ ] Description written in third person
 - [ ] Keywords throughout for search (errors, symptoms, tools)
 - [ ] Clear overview with core principle
 - [ ] Address specific baseline failures identified in RED
-<<<<<<< HEAD
-=======
 - [ ] Guidance form matches the failure type (see Match the Form to the Failure)
 - [ ] For behavior-shaping guidance: wording micro-tested against a no-guidance control (5+ reps, every flagged match read manually) — N/A for pure reference skills
->>>>>>> 2ecb89d (update)
 - [ ] Code inline OR link to separate file
 - [ ] One excellent example (not multi-language)
 - [ ] Run scenarios WITH skill - verify agents now comply
@@ -745,16 +668,10 @@ Deploying untested skills = deploying untested code. It's a violation of quality
 
 ## Discovery Workflow
 
-<<<<<<< HEAD
-How future Claude finds your skill:
-
-1. **Encounters problem** ("tests are flaky")
-=======
 How future agents find your skill:
 
 1. **Encounters problem** ("tests are flaky")
 2. **Searches skills** (greps descriptions, browses categories)
->>>>>>> 2ecb89d (update)
 3. **Finds SKILL** (description matches)
 4. **Scans overview** (is this relevant?)
 5. **Reads patterns** (quick reference table)

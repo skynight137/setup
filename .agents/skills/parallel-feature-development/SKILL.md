@@ -11,7 +11,7 @@ description: >-
   they are ready, or when deciding whether to use vertical slices versus
   horizontal layers for a full-stack feature.
 version: 1.0.2
-enabled: true
+enabled: false
 ---
 
 # Parallel Feature Development

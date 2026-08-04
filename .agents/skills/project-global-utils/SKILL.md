@@ -1,16 +1,12 @@
 ---
 name: project-global-utils
-<<<<<<< HEAD
-description: Use this skill when adding new cross-module utilities, deciding whether a helper belongs in utils/ vs bot/utils/, migrating code from bot/utils/ to root utils/, or understanding the shim backward-compat pattern. Covers what lives in utils/, what must stay in bot/utils/, the shim pattern, and migration rules.
-=======
 description: >-
   Use this skill when adding new cross-module utilities, deciding whether a
   helper belongs in utils/ vs bot/utils/, migrating code from bot/utils/ to root
   utils/, or understanding the shim backward-compat pattern. Covers what lives
   in utils/, what must stay in bot/utils/, the shim pattern, and migration
   rules.
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Project Global Utils

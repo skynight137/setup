@@ -5,7 +5,7 @@ description: >-
   properties, and other Obsidian-specific syntax. Use when working with .md
   files in Obsidian, or when the user mentions wikilinks, callouts, frontmatter,
   tags, embeds, or Obsidian notes.
-enabled: true
+enabled: false
 ---
 
 # Obsidian Flavored Markdown Skill

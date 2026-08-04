@@ -1,6 +1,6 @@
 ---
 name: react-useeffect
-enabled: true
+enabled: false
 description: >-
   React useEffect best practices from official docs. Use when writing/reviewing
   useEffect, useState for derived values, data fetching, or state

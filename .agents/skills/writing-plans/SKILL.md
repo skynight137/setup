@@ -1,13 +1,9 @@
 ---
 name: writing-plans
-<<<<<<< HEAD
-description: Use when you have a spec or requirements for a multi-step task, before touching code
-=======
 description: >-
   Use when you have a spec or requirements for a multi-step task, before
   touching code
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Writing Plans
@@ -20,11 +16,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
-<<<<<<< HEAD
-**Context:** This should be run in a dedicated worktree (created by brainstorming skill).
-=======
 **Context:** If working in an isolated worktree, it should have been created via the `superpowers:using-git-worktrees` skill at execution time.
->>>>>>> 2ecb89d (update)
 
 **Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
 - (User preferences for plan location override this default)
@@ -44,8 +36,6 @@ Before defining tasks, map out which files will be created or modified and what 
 
 This structure informs the task decomposition. Each task should produce self-contained changes that make sense independently.
 
-<<<<<<< HEAD
-=======
 ## Task Right-Sizing
 
 A task is the smallest unit that carries its own test cycle and is worth a
@@ -55,7 +45,6 @@ deliverable needs them; split only where a reviewer could meaningfully
 reject one task while approving its neighbor. Each task ends with an
 independently testable deliverable.
 
->>>>>>> 2ecb89d (update)
 ## Bite-Sized Task Granularity
 
 **Each step is one action (2-5 minutes):**
@@ -72,11 +61,7 @@ independently testable deliverable.
 ```markdown
 # [Feature Name] Implementation Plan
 
-<<<<<<< HEAD
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
-=======
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
->>>>>>> 2ecb89d (update)
 
 **Goal:** [One sentence describing what this builds]
 
@@ -84,8 +69,6 @@ independently testable deliverable.
 
 **Tech Stack:** [Key technologies/libraries]
 
-<<<<<<< HEAD
-=======
 ## Global Constraints
 
 [The spec's project-wide requirements — version floors, dependency limits,
@@ -93,7 +76,6 @@ naming and copy rules, platform requirements — one line each, with exact
 values copied verbatim from the spec. Every task's requirements implicitly
 include this section.]
 
->>>>>>> 2ecb89d (update)
 ---
 ```
 
@@ -107,15 +89,12 @@ include this section.]
 - Modify: `exact/path/to/existing.py:123-145`
 - Test: `tests/exact/path/to/test.py`
 
-<<<<<<< HEAD
-=======
 **Interfaces:**
 - Consumes: [what this task uses from earlier tasks — exact signatures]
 - Produces: [what later tasks rely on — exact function names, parameter
   and return types. A task's implementer sees only their own task; this
   block is how they learn the names and types neighboring tasks use.]
 
->>>>>>> 2ecb89d (update)
 - [ ] **Step 1: Write the failing test**
 
 ```python
@@ -149,44 +128,6 @@ git commit -m "feat: add specific feature"
 ```
 ````
 
-<<<<<<< HEAD
-## Remember
-- Exact file paths always
-- Complete code in plan (not "add validation")
-- Exact commands with expected output
-- Reference relevant skills with @ syntax
-- DRY, YAGNI, TDD, frequent commits
-
-## Plan Review Loop
-
-After writing the complete plan:
-
-1. Dispatch a single plan-document-reviewer subagent (see plan-document-reviewer-prompt.md) with precisely crafted review context — never your session history. This keeps the reviewer focused on the plan, not your thought process.
-   - Provide: path to the plan document, path to spec document
-2. If ❌ Issues Found: fix the issues, re-dispatch reviewer for the whole plan
-3. If ✅ Approved: proceed to execution handoff
-
-**Review loop guidance:**
-- Same agent that wrote the plan fixes it (preserves context)
-- If loop exceeds 3 iterations, surface to human for guidance
-- Reviewers are advisory — explain disagreements if you believe feedback is incorrect
-
-## Execution Handoff
-
-After saving the plan:
-
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Ready to execute?"**
-
-**Execution path depends on harness capabilities:**
-
-**If harness has subagents (Claude Code, etc.):**
-- **REQUIRED:** Use superpowers:subagent-driven-development
-- Do NOT offer a choice - subagent-driven is the standard approach
-- Fresh subagent per task + two-stage review
-
-**If harness does NOT have subagents:**
-- Execute plan in current session using superpowers:executing-plans
-=======
 ## No Placeholders
 
 Every step must contain the actual content an engineer needs. These are **plan failures** — never write them:
@@ -233,5 +174,4 @@ After saving the plan, offer execution choice:
 
 **If Inline Execution chosen:**
 - **REQUIRED SUB-SKILL:** Use superpowers:executing-plans
->>>>>>> 2ecb89d (update)
 - Batch execution with checkpoints for review

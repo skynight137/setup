@@ -1,15 +1,11 @@
 ---
 name: backend-api-patterns
-<<<<<<< HEAD
-description: Use this skill when working on backend/ — adding a new endpoint, understanding the router/service/DB layering, selecting the correct dependency guard, writing schemas, or registering a new router. Covers FastAPI structure, endpoint patterns, service calls, test mode, and SSE streaming.
-=======
 description: >-
   Use this skill when working on backend/ — adding a new endpoint, understanding
   the router/service/DB layering, selecting the correct dependency guard,
   writing schemas, or registering a new router. Covers FastAPI structure,
   endpoint patterns, service calls, test mode, and SSE streaming.
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Backend API Patterns
@@ -32,11 +28,7 @@ backend/
 │   │   ├── router.py          # api_router_v2 (/api/v2)
 │   │   └── endpoints/         # auth, product (+ update/remove/add), inventory (+ sales/add/update/remove), wallet
 │   └── public/
-<<<<<<< HEAD
-│       └── endpoints/         # log, stats, oauth, payment, torrent (shared by v1 & v2)
-=======
 │       └── endpoints/         # log, stats, oauth, payment, telegram, torrent (shared by v1 & v2)
->>>>>>> 2ecb89d (update)
 ├── services/                  # Business logic
 │   ├── wallet.py              # WalletService
 │   ├── product.py             # ProductService
@@ -93,10 +85,6 @@ async def list_items(
     limit: int = Query(50, ge=1, le=100),
     auth: AuthRequest = Depends(require_auth_token_login),
 ) -> JSONResponse:
-<<<<<<< HEAD
-    result = await MyFeatureService.get_list(limit=limit)
-    return JSONResponse(content={"items": result, "total": len(result)})
-=======
     try:
         result = await MyFeatureService.get_list(limit=limit)
         return JSONResponse(content={"items": result, "total": len(result)})
@@ -105,7 +93,6 @@ async def list_items(
     except Exception:
         LOGGER.exception("list_items failed")
         raise HTTPException(status_code=500, detail="Internal server error")
->>>>>>> 2ecb89d (update)
 
 
 @router.post("/{item_id}/action", response_class=JSONResponse)
@@ -114,12 +101,6 @@ async def do_action(
     payload: MyRequest,
     auth: AuthRequest = Depends(require_auth_token_login),
 ) -> JSONResponse:
-<<<<<<< HEAD
-    result = await MyFeatureService.perform_action(item_id, payload)
-    if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
-    return JSONResponse(content={"message": "Action completed"})
-=======
     try:
         result = await MyFeatureService.perform_action(item_id, payload)
         if not result:
@@ -130,7 +111,6 @@ async def do_action(
     except Exception:
         LOGGER.exception("do_action failed")
         raise HTTPException(status_code=500, detail="Internal server error")
->>>>>>> 2ecb89d (update)
 ```
 
 ---
@@ -208,11 +188,7 @@ auth.wallet_id  # int — wallet identifier
 from backend.core.config import web_config
 
 if not web_config.test_mode:
-<<<<<<< HEAD
-    await db_manager.sessions.store_session(...)
-=======
     await db_manager.web_sessions.store_session(...)
->>>>>>> 2ecb89d (update)
 ```
 
 For Telegram WebApp validation, missing `X-Telegram-Init-Data` falls back to `get_test_mode_user()` in test mode.
@@ -221,9 +197,6 @@ For Telegram WebApp validation, missing `X-Telegram-Init-Data` falls back to `ge
 
 ## Error Handling
 
-<<<<<<< HEAD
-Always use `HTTPException` in endpoints. Use centralized messages from `backend/constants.py`:
-=======
 **Every handler must have an outer guard** — no exceptions. Standard pattern:
 
 ```python
@@ -239,7 +212,6 @@ except Exception:
 ```
 
 Use centralized messages from `backend/constants.py` for well-known 4xx codes:
->>>>>>> 2ecb89d (update)
 
 ```python
 from backend import constants
@@ -259,11 +231,8 @@ raise WebAppValidationError("Invalid initData hash")
 # → 403 Forbidden: {"message": "...", "details": "..."}
 ```
 
-<<<<<<< HEAD
-=======
 **Guard parity rule:** v1, v2, and public endpoint layers must all have identical outer guard coverage. GET handlers are the most common blind spot — always guard reads too.
 
->>>>>>> 2ecb89d (update)
 ---
 
 ## SSE (Server-Sent Events) Pattern

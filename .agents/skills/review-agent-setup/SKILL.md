@@ -1,6 +1,7 @@
 ---
 name: review-agent-setup
 description: Configure human-in-the-loop gating for AI agent review actions in Claude Code. Use when setting up a project where an agent may post PR reviews, comments, merges, or edit CI configuration, and you want a cryptographically auditable approval trail with Cedar-enforced gates.
+enabled: false
 ---
 
 # review-agent-governance — Setup

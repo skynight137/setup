@@ -1,15 +1,11 @@
 ---
 name: code-review-excellence
-<<<<<<< HEAD
-description: Master effective code review practices to provide constructive feedback, catch bugs early, and foster knowledge sharing while maintaining team morale. Use when reviewing pull requests, establishing review standards, or mentoring developers.
-=======
 description: >-
   Master effective code review practices to provide constructive feedback, catch
   bugs early, and foster knowledge sharing while maintaining team morale. Use
   when reviewing pull requests, establishing review standards, or mentoring
   developers.
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Code Review Excellence
@@ -536,15 +532,3 @@ When author disagrees with your feedback:
 
 ✅ Approve after addressing required changes
 ```
-<<<<<<< HEAD
-
-## Resources
-
-- **references/code-review-best-practices.md**: Comprehensive review guidelines
-- **references/common-bugs-checklist.md**: Language-specific bugs to watch for
-- **references/security-review-guide.md**: Security-focused review checklist
-- **assets/pr-review-template.md**: Standard review comment template
-- **assets/review-checklist.md**: Quick reference checklist
-- **scripts/pr-analyzer.py**: Analyze PR complexity and suggest reviewers
-=======
->>>>>>> 2ecb89d (update)

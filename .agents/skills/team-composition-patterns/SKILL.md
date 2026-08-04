@@ -10,7 +10,7 @@ description: >-
   building a custom team composition for a non-standard workflow such as a
   migration or security audit.
 version: 1.0.2
-enabled: true
+enabled: false
 ---
 
 # Team Composition Patterns

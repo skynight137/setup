@@ -4,7 +4,7 @@ description: >-
   Master defensive Bash programming techniques for production-grade scripts. Use
   when writing robust shell scripts, CI/CD pipelines, or system utilities
   requiring fault tolerance and safety.
-enabled: true
+enabled: false
 ---
 
 # Bash Defensive Patterns

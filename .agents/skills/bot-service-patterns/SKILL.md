@@ -1,15 +1,11 @@
 ---
 name: bot-service-patterns
-<<<<<<< HEAD
-description: Use this skill when working on bot/service/ — adding a new service, modifying ServiceController, understanding service types/lifecycle, state classes, or the bot startup sequence. Covers BaseService, ServiceController, ServiceType, config integration, and state management.
-=======
 description: >-
   Use this skill when working on bot/service/ — adding a new service, modifying
   ServiceController, understanding service types/lifecycle, state classes, or
   the bot startup sequence. Covers BaseService, ServiceController, ServiceType,
   config integration, and state management.
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Bot Service Patterns
@@ -359,8 +355,6 @@ Helper subclasses:
 
 ---
 
-<<<<<<< HEAD
-=======
 ## Force-Kill Safety — Never Target the Current Process
 
 `_force_kill_service()` (in `base.py`) runs three concurrent strategies to clear a
@@ -386,7 +380,6 @@ logic entirely.
 
 ---
 
->>>>>>> 2ecb89d (update)
 ## Parallel vs Sequential Startup
 
 Controlled by `GlobalConfig.service_action_mode_parallel` (default: parallel):

@@ -1,15 +1,11 @@
 ---
 name: bot-buttons-patterns
-<<<<<<< HEAD
-description: Use this skill when creating or updating any bot/modules/* file that uses ButtonMaker, inline keyboards, callback routing, or help pagination. Use proactively when building menus, adding callback handlers, or designing navigation flow in the Telegram bot.
-=======
 description: >-
   Use this skill when creating or updating any bot/modules/* file that uses
   ButtonMaker, inline keyboards, callback routing, or help pagination. Use
   proactively when building menus, adding callback handlers, or designing
   navigation flow in the Telegram bot.
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Telegram Bot UI Patterns
@@ -93,23 +89,12 @@ f"chatmgmt {user_id} {target_id} close"             # close menu
 ```python
 buttons = ButtonMaker()
 
-<<<<<<< HEAD
-# Add a callback button (default body, or "header"/"footer")
-=======
 # Add a callback button (default body, or ButtonPositions.HEADER / ButtonPositions.FOOTER)
->>>>>>> 2ecb89d (update)
 buttons.callback_button(text, callback_data, position=None)
 
 # Add a URL button
 buttons.url_button(text, url, position=None)
 
-<<<<<<< HEAD
-# Standard Back + Close navigation row
-buttons.add_navigation_buttons(cb_key, identity, params="", position="footer")
-
-# Pagination row (footer) — only rendered if total_items > max_items_display
-buttons.add_pagination_buttons(cb_key, identity, params="", total_items=0, max_items_display=10, position="footer")
-=======
 # Add an inline Web App button (hides the URL in Telegram)
 buttons.webapp_button(text, url, position=None)
 
@@ -124,7 +109,6 @@ buttons.add_navigation_buttons(cb_key, identity, params="", position=ButtonPosit
 
 # Pagination row (footer) — only rendered if total_items > max_items_display
 buttons.add_pagination_buttons(cb_key, identity, params="", total_items=0, max_items_display=10, position=ButtonPositions.FOOTER)
->>>>>>> 2ecb89d (update)
 
 # Edit / View toggle
 buttons.add_edit_view_toggle(cb_key, identity, current_state=MenuStates.VIEW, params="", position=None)
@@ -137,8 +121,6 @@ markup = buttons.build_menu(b_cols=2, h_cols=8, f_cols=8)
 buttons.reset()  # clear all lists for reuse
 ```
 
-<<<<<<< HEAD
-=======
 ### Reply Keyboard Buttons
 
 All methods below append to `_keyboard_button`; build with `buttons.build_keyboard(cols=2)`.
@@ -248,7 +230,6 @@ buttons.callback_button(ButtonText.CLOSE, callback_data, style=ButtonStyle.DANGE
 
 > `add_navigation_buttons` already applies `DANGER` to its Close button internally — no extra `style=` needed there.
 
->>>>>>> 2ecb89d (update)
 ---
 
 ## 3. Menu Flow Pattern
@@ -263,15 +244,6 @@ Each level has a **Back** button pointing at the level above:
 
 ```python
 # Main → close only
-<<<<<<< HEAD
-buttons.add_navigation_buttons(cb_key, user_id, close_only=True, position="footer")
-
-# Category → back to main
-buttons.add_navigation_buttons(cb_key, user_id, position="footer")   # back_to="" → "back"
-
-# Field → back to category
-buttons.add_navigation_buttons(cb_key, user_id, back_to=category, position="footer")
-=======
 buttons.add_navigation_buttons(cb_key, user_id, close_only=True, position=ButtonPositions.FOOTER)
 
 # Category → back to main
@@ -279,7 +251,6 @@ buttons.add_navigation_buttons(cb_key, user_id, position=ButtonPositions.FOOTER)
 
 # Field → back to category
 buttons.add_navigation_buttons(cb_key, user_id, back_to=category, position=ButtonPositions.FOOTER)
->>>>>>> 2ecb89d (update)
 # generates: f"{cb_key} {user_id} back {category}"
 ```
 

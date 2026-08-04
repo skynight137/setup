@@ -7,7 +7,7 @@ description: >-
   setting compensation or equity ranges, designing org structure, or building a
   hiring budget aligned to funding milestones.
 version: 1.0.0
-enabled: true
+enabled: false
 ---
 
 # Team Composition Analysis

@@ -1,8 +1,5 @@
 ---
 name: bot-xmissions-patterns
-<<<<<<< HEAD
-description: Use this skill when working on the XMissions system — adding new missions, modifying the menu, changing the callback schema, or understanding how xmissions.py routes to mission modules. Covers menu flow, callback schema (xm <user_id> <action>), mission interface contract, owner CRUD management, reward types, rotator_blogs deep link flow, referral mission dual-sided reward system, and how to add new mission types.
-=======
 description: >-
   Use this skill when working on the XMissions system — adding new missions,
   modifying the menu, changing the callback schema, or understanding how
@@ -10,8 +7,7 @@ description: >-
   <user_id> <action>), mission interface contract, owner CRUD management, reward
   types, rotator_blogs deep link flow, referral mission dual-sided reward
   system, and how to add new mission types.
-enabled: true
->>>>>>> 2ecb89d (update)
+enabled: false
 ---
 
 # Bot — XMissions Patterns
@@ -160,11 +156,7 @@ Values stored in MongoDB remain lowercase. Always reference by UPPERCASE attribu
 class MissionModel(CollectionModel):
     id: str                              # token_hex(5) — 10 hex chars
     bot_id: int                          # Owner bot Telegram user ID
-<<<<<<< HEAD
-    mission_name: str                    # Display name on button (max 64 chars)
-=======
     mission_name: str                    # Display name on button (PRODUCT_NAME_PATTERN)
->>>>>>> 2ecb89d (update)
     mission_type: MissionType            # ROTATOR_BLOGS | INSTANT_CLAIM | REFERRAL
     reward_type: MissionRewardType       # CREDITS | PRODUCT
     reward_amount: float | None          # Required when reward_type=CREDITS
@@ -218,13 +210,6 @@ user clicks rotator link (Blogger article)
   → start.py: _handle_xm_deeplink(client, message, user_id, xm_parts=[mission_id, user_id, date], is_new_user)
   → validate: token_user_id == message.from_user.id
   → load MissionModel from db_manager.missions
-<<<<<<< HEAD
-  → check claim_records.has_claimed(user_id, mission_id, task_date)
-  → grant_reward(client, user_id, mission)
-  → claim_records.record_claim(user_id, mission_id, task_date, ...)
-```
-
-=======
   → claim_records.record_claim(user_id, mission_id, task_date, ...)  ← INSERT FIRST as status="pending" (idempotency guard)
       on DuplicateKeyError → "already claimed today" → return
   → grant_reward(client, user_id, mission)
@@ -237,7 +222,6 @@ user clicks rotator link (Blogger article)
 permanently locks the user out of that day's claim — the stuck reservation expires and can be
 retried); `"completed"` records are kept 7 days.
 
->>>>>>> 2ecb89d (update)
 Deep link prefix routing in `start.py`: `if prefix == "xm":` (from `_xm_…` token).
 Sub-prefix routing inside `_handle_xm_deeplink`: `if xm_parts[0] == "ref":` → referral path.
 
@@ -263,13 +247,8 @@ User B clicks A's link
   → grant_referred_reward(client, B, mission)   ← B gets welcome credits/product
   → B sees welcome message with reward notice
   → if A's count >= min_referral_count and not yet rewarded:
-<<<<<<< HEAD
-      → grant_reward(client, A, mission)
-      → referral_records.mark_rewarded(A, mission_id)
-=======
       → marked = referral_records.mark_rewarded(A, mission_id)  ← atomic ($ne filter, wins-once race)
       → if marked: grant_reward(client, A, mission)             ← only the winner grants reward
->>>>>>> 2ecb89d (update)
       → DM A: "🎉 Referral Complete!"
   → else:
       → DM A: "🤝 Progress: X/Y"

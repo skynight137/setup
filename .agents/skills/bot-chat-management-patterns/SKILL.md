@@ -5,7 +5,7 @@ description: >-
   actions, modifying the menu, changing the callback schema, understanding the
   dialog cache, adding new bulk operations, or working on the bulk kick / create
   chats features.
-enabled: true
+enabled: false
 ---
 
 # bot-chat-management-patterns
