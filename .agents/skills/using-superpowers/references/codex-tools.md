@@ -1,19 +1,5 @@
 # Codex Tool Mapping
 
-<<<<<<< HEAD
-Skills use Claude Code tool names. When you encounter these in a skill, use your platform equivalent:
-
-| Skill references | Codex equivalent |
-|-----------------|------------------|
-| `Task` tool (dispatch subagent) | `spawn_agent` |
-| Multiple `Task` calls (parallel) | Multiple `spawn_agent` calls |
-| Task returns result | `wait` |
-| Task completes automatically | `close_agent` to free slot |
-| `TodoWrite` (task tracking) | `update_plan` |
-| `Skill` tool (invoke a skill) | Skills load natively — just follow the instructions |
-| `Read`, `Write`, `Edit` (files) | Use your native file tools |
-| `Bash` (run commands) | Use your native shell tools |
-=======
 Skills speak in actions ("dispatch a subagent", "create a todo", "read a file"). On Codex these resolve to the tools below.
 
 | Action skills request | Codex equivalent |
@@ -39,7 +25,6 @@ When a skill mentions "your instructions file", on Codex this is **`AGENTS.md`**
 ## Personal skills directory
 
 User-level skills live at **`$CODEX_HOME/skills/`** (default `~/.codex/skills/`). Codex also reads the cross-runtime path **`~/.agents/skills/`** (shared with Copilot CLI and Gemini CLI). When both directories exist at the same scope, Codex loads them both as separate skill catalogs — Codex's docs don't currently document a precedence between them. Each skill is a subdirectory containing a `SKILL.md` (with `name` and `description` frontmatter).
->>>>>>> 2ecb89d (update)
 
 ## Subagent dispatch requires multi-agent support
 
@@ -50,9 +35,6 @@ Add to your Codex config (`~/.codex/config.toml`):
 multi_agent = true
 ```
 
-<<<<<<< HEAD
-This enables `spawn_agent`, `wait`, and `close_agent` for skills like `dispatching-parallel-agents` and `subagent-driven-development`.
-=======
 This enables `spawn_agent`, `wait_agent`, and `close_agent` for skills like `dispatching-parallel-agents` and `subagent-driven-development`.
 
 Legacy note: Codex builds before `rust-v0.115.0` exposed spawned-agent
@@ -88,4 +70,3 @@ the user to use the App's native controls:
 
 The agent can still run tests, stage files, and output suggested branch
 names, commit messages, and PR descriptions for the user to copy.
->>>>>>> 2ecb89d (update)
