@@ -15,3 +15,6 @@ for reviewed durable lessons, and `skills/` for reusable operating guidance.
 Do not recreate an ephemeral state directory.
 
 See `.agents/docs/README.md` for the full vault contract.
+
+To install this complete vault into another project without replacing its
+existing agent history, read `.agents/docs/portable-install.md`.

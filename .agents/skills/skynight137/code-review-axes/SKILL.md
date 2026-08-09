@@ -145,39 +145,13 @@ The final report is a plan artifact. It deduplicates findings, sorts the
 master table by severity, groups prioritized work items, and gives the next
 agent enough context to act. It does not change application code.
 
-## Safe installation into another project
+## Portable vault installation
 
-The `.agents/` directory is the portable unit. Install selected reusable
-content manually; do not rsync the base repository into the project root.
-
-Preview an additive copy first:
-
-```bash
-rsync -a --dry-run --itemize-changes --ignore-existing \
-  /tmp/agent-vault-base/.agents/skills/skynight137/code-review-axes/ \
-  /path/to/project/.agents/skills/skynight137/code-review-axes/
-```
-
-After checking the preview, remove `--dry-run`. For the whole portable
-collection, copy only reusable areas:
-
-```bash
-for area in agents commands docs hooks plugins rules scripts skills tools; do
-  rsync -a --ignore-existing \
-    "/tmp/agent-vault-base/.agents/$area/" \
-    "/path/to/project/.agents/$area/"
-done
-```
-
-By default, leave the target project's `chats/`, `plans/`, and `memory/`
-untouched. Merge those manually only when their contents are intentionally
-portable. `--ignore-existing` prevents replacement of an existing project
-file; inspect and merge updates explicitly instead.
-
-If the target still has the old
-`.agents/skills/skynight137/project-code-review-axes/` path, install the new
-path beside it, verify references, then remove the old path manually. Do not
-delete it automatically during a portable sync.
+This skill documents review execution only. For copying the complete `.agents`
+vault into another project, read
+`.agents/docs/portable-install.md`. For choosing sequential or parallel
+reviewer dispatch, read
+`references/delegation-modes.md`.
 
 ## Final validation
 

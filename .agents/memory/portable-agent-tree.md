@@ -12,7 +12,8 @@ credentials, integrations, and session state create privacy leaks and make the
 copied structure unreliable.
 
 **How to apply:** Add reusable content under the category/owner layout. Keep
-plans, chats, memory, docs, and scripts project-local. If a public source is
+plans, chats, and memory project-local by default; portable operating guidance
+may live in docs and setup utilities may live in scripts. If a public source is
 temporarily unavailable, skip that source with a visible warning instead of
 discarding successful updates from other sources.
 

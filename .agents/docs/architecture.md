@@ -25,10 +25,13 @@ metadata or credentials.
 
 ## Project-local material
 
-`plans/`, `chats/`, `memory/`, `docs/`, and `scripts/` belong to the project
-using the setup. Do not put temporary session state in the tree. If a detail
-is short-lived, keep it in the active conversation or current plan; if it is
-a durable lesson, record it in `memory/`.
+`plans/`, `chats/`, and `memory/` belong to the project using the setup and
+should normally remain project-local during a base-vault install. `docs/` and
+`scripts/` may contain portable vault operating guidance and setup utilities;
+keep project-specific additions clearly separated. Do not put temporary session
+state in the tree. If a detail is short-lived, keep it in the active
+conversation or current plan; if it is a durable lesson, record it in
+`memory/`.
 
 ## Privacy and portability
 
