@@ -10,19 +10,19 @@ short: the vault holds the context, and the current checkout is the authority.
 
 ## 1. Orient
 
-### Load the skill router first
+### Discover applicable skills
 
-Before exploring the repository or choosing work, read these bootstrap skills
-when they are present:
+Before exploring the repository or choosing work, use the task wording,
+project rules, and any skill metadata provided by the current harness to
+identify applicable workflows. If the current harness provides a mandatory
+skill-discovery or router procedure, follow it; otherwise select skills from
+the task and the available catalog without loading unrelated skill files.
 
-1. `.agents/skills/obra/using-superpowers/SKILL.md`
-2. `.agents/skills/addyosmani/using-agent-skills/SKILL.md`
-
-Do not load every skill in `.agents/skills/`. Use the bootstrap skills to
-identify the smallest applicable process skill, then load only the relevant
-domain or implementation skills for the selected work item. Prefer one
-canonical skill when multiple owners provide overlapping guidance; use an
-additional skill only when it contributes a distinct required concern.
+Do not load every skill in `.agents/skills/`. Load only the smallest applicable
+process, domain, or implementation skills for the selected work item. Prefer
+one canonical skill when multiple owners provide overlapping guidance; use an
+additional skill only when it contributes a distinct required concern. Do not
+hard-code a particular provider or owner as a universal bootstrap dependency.
 
 Read, when present:
 
