@@ -1,1 +1,2 @@
 - [Portable agent tree](portable-agent-tree.md) — keep shared content owner-scoped and provider-neutral so `.agents/` can be copied between projects.
+- [Skill loading](skill-loading.md) — route through a small bootstrap set; do not load the entire skill catalog into every session.

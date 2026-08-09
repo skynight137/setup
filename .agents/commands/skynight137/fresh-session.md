@@ -10,12 +10,26 @@ short: the vault holds the context, and the current checkout is the authority.
 
 ## 1. Orient
 
+### Load the skill router first
+
+Before exploring the repository or choosing work, read these bootstrap skills
+when they are present:
+
+1. `.agents/skills/obra/using-superpowers/SKILL.md`
+2. `.agents/skills/addyosmani/using-agent-skills/SKILL.md`
+
+Do not load every skill in `.agents/skills/`. Use the bootstrap skills to
+identify the smallest applicable process skill, then load only the relevant
+domain or implementation skills for the selected work item. Prefer one
+canonical skill when multiple owners provide overlapping guidance; use an
+additional skill only when it contributes a distinct required concern.
+
 Read, when present:
 
 1. `.agents/chats/current.md`
 2. the active or most recent relevant files in `.agents/plans/`
 3. linked `.agents/memory/` topics
-4. relevant reusable skills and project rules
+4. relevant project rules
 
 Then inspect:
 
