@@ -1,0 +1,1 @@
+- [Portable agent tree](portable-agent-tree.md) — keep shared content owner-scoped and provider-neutral so `.agents/` can be copied between projects.

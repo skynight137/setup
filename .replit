@@ -2,9 +2,9 @@ modules = []
 
 [nix]
 channel = "stable-25_05"
+packages = ["rsync"]
 
 [agent]
 expertMode = true
-
 
 
