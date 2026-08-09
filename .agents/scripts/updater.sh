@@ -62,6 +62,16 @@ sync_category() {
   rsync -a --delete --exclude='.git/' "$source_dir/" "$destination/"
 }
 
+sync_local_skill_mirrors() {
+  local destination="$AGENTS_ROOT/skills/replit"
+
+  mkdir -p "$destination"
+  rsync -a --delete --exclude='.fingerprint' \
+    "$PROJECT_ROOT/.local/skills" "$destination/"
+  rsync -a --delete --exclude='.fingerprint' \
+    "$PROJECT_ROOT/.local/secondary_skills" "$destination/"
+}
+
 sync_repo() {
   local owner="$1"
   local url="$2"
@@ -103,13 +113,13 @@ sync_repo "remotion" "https://github.com/remotion-dev/skills.git" \
   skills skills
 
 sync_repo "wshobson" "https://github.com/wshobson/agents.git" \
-  plugins .agents/plugins
+  plugins plugins
 
 sync_repo "addyosmani" "https://github.com/addyosmani/agent-skills.git" \
   skills skills \
   agents agents \
   hooks hooks
 
-
+sync_local_skill_mirrors
 
 printf 'Agent content updated in %s\n' "$AGENTS_ROOT"

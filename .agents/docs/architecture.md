@@ -32,7 +32,6 @@ a durable lesson, record it in `memory/`.
 
 ## Privacy and portability
 
-The setup has no provider-specific runtime dependency, secret, integration, or
-environment-variable requirement. Source URLs are public repository URLs, and
-the updater does not read credentials from the project or write them into
-`.agents/`.
+The setup has no runtime dependency, secret, integration, or environment-variable
+requirement. Source URLs are public repository URLs, and the updater does not
+read credentials from the project or write them into `.agents/`.

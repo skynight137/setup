@@ -1,67 +1,101 @@
-# Portable agent setup
+# Portable agent knowledge vault
 
-This directory is a provider-neutral agent workspace. Copy `.agents/` into
-another project to reuse the same agents, skills, commands, rules, hooks,
-plans, chats, and documentation.
+`.agents/` is a Git-backed, Markdown-first knowledge vault and reusable
+automation tree. Copy it into another project when you want the same operating
+conventions, reusable content, and cross-session continuity.
 
 ## Layout
 
 ```text
 .agents/
-├── agents/<owner>/     # specialized subagents
-├── skills/<owner>/     # reusable workflows loaded on demand
-├── commands/<owner>/   # maintained command shims
-├── rules/<owner>/      # opt-in project and language standards
-├── hooks/<owner>/      # runtime automation and enforcement
-├── scripts/            # setup, repair, sync, orchestration, and checks
-├── docs/               # setup and operating guides
-├── plans/              # project plans
-├── chats/              # conversation notes
-└── memory/             # durable lessons and decisions
+├── agents/<owner>/       # specialized subagents
+├── skills/<owner>/       # reusable workflows
+├── commands/<owner>/     # maintained command shims
+├── rules/<owner>/        # opt-in standards
+├── hooks/<owner>/        # runtime automation
+├── plugins/<owner>/      # installable plugin packages and manifests
+├── tools/                # vault and graph utilities
+├── scripts/              # setup, repair, sync, and checks
+├── docs/                 # architecture and operating guides
+├── chats/                # conversation continuity and handoffs
+├── plans/                # findings, designs, and work records
+└── memory/               # reviewed durable lessons
 ```
 
-The updater intentionally does not create provider-specific directories,
-credentials, integrations, or runtime state. A project can use any compatible
-agent runtime without changing this layout. Optional public sources that are
-unavailable are reported and skipped so the other sources can still update.
+## Collections
 
-## Copy to a project
+Choose the collection before writing a document:
 
-From this repository:
+| Collection | Lifecycle | Use |
+|---|---|---|
+| `chats/` | short-lived continuity | concise summaries and the next-session handoff |
+| `memory/` | long-lived knowledge | reviewed lessons, decisions, and constraints |
+| `plans/` | work records | investigations, designs, and implementation history |
+| `skills/` | reusable guidance | safe actions and operating procedures |
+
+Markdown remains the source of truth. Indexes, graph JSON, DOT, and HTML views
+are derived artifacts and may be regenerated or deleted.
+
+## Frontmatter and links
+
+Use YAML frontmatter for identity and indexing metadata:
+
+```yaml
+---
+id: stable-slug
+kind: memory | plan | skill | chat
+category: review | design | action | architecture | module | process | tooling
+tags: [lowercase, hyphenated]
+reusable: true | false
+---
+```
+
+Plans additionally use `status`; skills additionally use `enabled`. Use
+relative Markdown links or `[[wikilinks]]` for relationships. Keep secrets,
+credentials, tokens, private user data, and large logs out of the vault.
+
+## Copy to another project
 
 ```bash
 git clone <setup-repository-url> /tmp/agent-setup
 rsync -a /tmp/agent-setup/.agents/ /path/to/project/.agents/
 ```
 
-The `.agents/` directory is the portable unit. Copying it does not require
-copying the setup repository's application files.
+The `.agents/` directory is the portable unit. Project-specific source code
+and application files are not required.
 
-## Update shared content
-
-Run from any project that contains this setup:
+## Refresh reusable content
 
 ```bash
 .agents/scripts/updater.sh
 ```
 
-The script discovers the project root from its own location, checks out public
-source repositories in `/tmp/agent-sources`, and synchronizes their content
-into the owner/category directories above. Override the temporary checkout
-location when needed:
+The updater refreshes public source checkouts in `/tmp/agent-sources`, mirrors
+their mapped content into owner directories, and mirrors the two local skill
+collections into the local skill mirror. Every `.fingerprint` file is
+excluded.
+
+Override the temporary checkout directory when needed:
 
 ```bash
 AGENTS_SOURCE_ROOT=/tmp/my-agent-sources .agents/scripts/updater.sh
 ```
 
-Source-owned directories are mirrored with `rsync --delete`; local changes in
-those directories should be made upstream or kept outside the synchronized
-owner directory. Project-local plans, chats, memory, docs, and scripts are not
-managed by the updater.
+Source-owned directories are mirrored with deletion enabled. Keep local
+changes in `chats/`, `plans/`, `memory/`, `docs/`, and `tools/`; do not edit
+source-owned mirrors directly.
 
-## Requirements
+## Graph workflow
 
-- `bash`
-- `git`
-- `rsync`
-- network access when a source repository is not already cached
+Generate a Markdown relationship graph on demand:
+
+```bash
+python .agents/tools/markdown_graph.py \
+  --root .agents \
+  --output .agents/.generated/markdown-graph.json \
+  --dot-output .agents/.generated/markdown-graph.dot
+```
+
+Open `.agents/` as a vault in a Markdown graph application for interactive
+backlinks and graph view. The generated graph is useful for scripts and static
+views, but it is not a second source of truth.
