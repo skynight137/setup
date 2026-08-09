@@ -1,0 +1,107 @@
+---
+description: Start or resume work from the project vault, verify it against the current checkout, and complete the next safe work item hands-off.
+argument-hint: [optional goal or constraint]
+---
+
+# Fresh Session
+
+Use this command at the beginning of a new work session. It is intentionally
+short: the vault holds the context, and the current checkout is the authority.
+
+## 1. Orient
+
+Read, when present:
+
+1. `.agents/chats/current.md`
+2. the active or most recent relevant files in `.agents/plans/`
+3. linked `.agents/memory/` topics
+4. relevant reusable skills and project rules
+
+Then inspect:
+
+```bash
+git status --short
+git branch --show-current
+git log -10 --oneline
+```
+
+Do not create or use an ephemeral state directory.
+
+## 2. Choose the next concrete item
+
+Prefer, in order:
+
+1. The exact next step in `.agents/chats/current.md`.
+2. An `in-progress` plan with an explicit next action.
+3. A `todo` or unblocked plan that matches the current checkout.
+4. The user-supplied argument, if present.
+
+Verify that the referenced files, symbols, branch, and assumptions still exist.
+If the notes are stale, update the handoff or plan before acting. If no safe
+work item can be selected, ask one focused question and stop.
+
+## 3. Implement guarded
+
+Run autonomously through the complete cycle without pausing between ordinary
+steps:
+
+1. Restate the selected goal and acceptance checks internally.
+2. Read the affected code and relevant project guidance.
+3. Make the smallest coherent change.
+4. Re-check the diff after each meaningful edit.
+5. Avoid unrelated cleanup and never overwrite unrelated user changes.
+
+Ask before destructive operations, broad migrations, secret changes, or an
+ambiguous scope decision. Otherwise continue hands-off.
+
+## 4. Validate
+
+Run only the checks applicable to the detected project:
+
+```bash
+git diff --check
+```
+
+Also run the available lint, type-check, compile, test, and build commands.
+Record exact commands and results. A failed check must be fixed or clearly
+reported; never silently downgrade it.
+
+For a substantial code change, use the project review skill with its complete
+axis set, including Readability. For docs/config-only changes, perform a
+focused correctness and consistency review.
+
+## 5. Commit safely
+
+When implementation and validation pass:
+
+1. Review `git diff` and `git status`.
+2. Stage only files belonging to this work item.
+3. Create one Conventional Commit-style commit:
+   `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `build:`, or `chore:`.
+4. Do not push, publish, tag, or create a release unless explicitly requested.
+
+If unrelated changes are already present, leave them unstaged and mention them
+in the handoff.
+
+## 6. Handoff
+
+Before finishing:
+
+1. Update `.agents/chats/current.md` with the next unfinished goal or an
+   explicit no-active-handoff state.
+2. Add or update a dated summary under `.agents/chats/YYYY/` when the session
+   produced meaningful decisions or work.
+3. Update plan status and durable memory only when warranted.
+4. Verify the final diff, commit, and validation results one last time.
+
+Final response format:
+
+```text
+Completed: <work item>
+Validated: <commands and results>
+Committed: <commit subject or not committed with reason>
+Next: <next concrete item or no active handoff>
+```
+
+If a question or blocker prevented completion, report it precisely and leave a
+usable handoff instead of pretending the cycle finished.

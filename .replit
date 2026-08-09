@@ -7,4 +7,15 @@ packages = ["rsync"]
 [agent]
 expertMode = true
 
+[workflows]
+
+[[workflows.workflow]]
+name = "Update .agents"
+mode = "sequential"
+author = 43629746
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash .agents/scripts/updater.sh"
+
 
