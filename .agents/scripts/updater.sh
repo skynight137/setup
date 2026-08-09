@@ -103,18 +103,13 @@ sync_repo "remotion" "https://github.com/remotion-dev/skills.git" \
   skills skills
 
 sync_repo "wshobson" "https://github.com/wshobson/agents.git" \
-  agents .agents/plugins
+  plugins .agents/plugins
 
 sync_repo "addyosmani" "https://github.com/addyosmani/agent-skills.git" \
   skills skills \
   agents agents \
   hooks hooks
 
-sync_optional_repo "100xdevs" "https://github.com/100xdevs-cohort-2/agents.git" \
-  agents agents \
-  skills skills \
-  commands commands \
-  hooks hooks \
-  rules rules
+
 
 printf 'Agent content updated in %s\n' "$AGENTS_ROOT"
