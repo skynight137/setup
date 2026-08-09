@@ -19,3 +19,14 @@ discarding successful updates from other sources.
 When synchronizing a repository that has both registry metadata and installable
 packages, map the package directory into `plugins/<owner>`; registry metadata
 alone is not the plugin content.
+
+Reusable review runners should write isolated, uniquely named plan files and
+keep project-local chats, plans, and memory outside the additive install.
+
+**Why:** A base vault must improve another project's agent behavior without
+silently replacing that project's operating history or causing parallel
+reviewers to contend for the same output file.
+
+**How to apply:** Preview `rsync --ignore-existing` before copying reusable
+content. Use sequential review dispatch when resources or ordering are shared;
+use parallel dispatch only for independent read-only axes with distinct outputs.

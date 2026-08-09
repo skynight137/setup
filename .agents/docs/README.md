@@ -57,12 +57,44 @@ credentials, tokens, private user data, and large logs out of the vault.
 ## Copy to another project
 
 ```bash
-git clone <setup-repository-url> /tmp/agent-setup
-rsync -a /tmp/agent-setup/.agents/ /path/to/project/.agents/
+git clone <base-vault-repository-url> /tmp/agent-vault-base
 ```
 
 The `.agents/` directory is the portable unit. Project-specific source code
-and application files are not required.
+and application files are not required. Copy only into the target project's
+`.agents/` directory; never rsync the base repository into the project root.
+
+For a non-destructive manual install into a project that already has a vault,
+preview an additive copy and preserve existing files:
+
+```bash
+rsync -a --dry-run --itemize-changes --ignore-existing \
+  /tmp/agent-vault-base/.agents/skills/skynight137/code-review-axes/ \
+  /path/to/project/.agents/skills/skynight137/code-review-axes/
+
+# Remove --dry-run only after reviewing the preview.
+```
+
+To add all reusable vault areas without replacing project-local continuity:
+
+```bash
+for area in agents commands docs hooks plugins rules scripts skills tools; do
+  rsync -a --ignore-existing \
+    "/tmp/agent-vault-base/.agents/$area/" \
+    "/path/to/project/.agents/$area/"
+done
+```
+
+Do not add `--delete`, and do not use a plain overwrite sync when the target
+already has an `.agents/` vault. `--ignore-existing` prevents replacing an
+existing target file; the dry run makes new and skipped paths visible before
+writing.
+
+Do not copy into the project root, and do not automatically replace the target
+project's `chats/`, `plans/`, or `memory/`. Merge those directories manually
+only when their contents are intentionally portable. If an older skill path
+exists, install the new path beside it, verify references, and remove the old
+path manually.
 
 ## Refresh reusable content
 

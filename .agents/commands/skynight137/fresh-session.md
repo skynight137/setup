@@ -40,6 +40,25 @@ Verify that the referenced files, symbols, branch, and assumptions still exist.
 If the notes are stale, update the handoff or plan before acting. If no safe
 work item can be selected, ask one focused question and stop.
 
+### Resuming a multi-axis review
+
+If an active plan contains a `.js` review runner, inspect its `DATE`, `SLUG`,
+`MODE`, and scope before acting. Check which axis outputs actually exist:
+
+```bash
+ls .agents/plans/YYYY-MM-DD-<slug>-*.md 2>/dev/null
+```
+
+Seed the runner's `DONE_IDS` only from confirmed axis files, then paste the
+whole runner into a CodeExecution block. Use `MODE: "sequential"` when shared
+resources or ordering make concurrency unsafe; use `MODE: "parallel"` only
+when every axis has an independent output file and read-only review scope.
+The runner itself must await all dispatched reviewers and must not aggregate
+until all ten axes confirm their `FILE_WRITTEN` markers.
+
+After `FINAL.md` exists, read it and act on its prioritized findings; do not
+rerun completed axes unless the reviewed scope changed.
+
 ## 3. Implement guarded
 
 Run autonomously through the complete cycle without pausing between ordinary
