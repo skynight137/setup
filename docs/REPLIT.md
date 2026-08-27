@@ -1,39 +1,51 @@
-# Generate ssh key
+# REPLIT x GITHUB
+
+## Generate ssh key
 ```bash
-ssh-keygen -t ed25519 -C "103868701+skynight137@users.noreply.github.com"
+# save to project path avoid $HOME reset
+mkdir -p ~/workspace/.local/.ssh
+
+# symlink
+ln -sfn ~/workspace/.local/.ssh ~/.ssh
+
+# generate key
+ssh-keygen -t ed25519 -C "103868701+skynight137@users.noreply.github.com" -f ~/workspace/.local/.ssh/id_ed25519 -N "passphrase"
+
+
 ```
 
-# Fix permissions (SSH is picky about this) 
+## Fix permissions
 ```bash
-chmod 700 /home/runner/.ssh
-chmod 600 /home/runner/.ssh/id_ed25519
-chmod 644 /home/runner/.ssh/id_ed25519.pub
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/id_ed25519
+chmod 644 ~/.ssh/id_ed25519.pub
 ```
 
-# Start ssh-agent and add the key
+## Start ssh-agent and add the key
 ```bash
 eval "$(ssh-agent -s)"
-ssh-add /home/runner/.ssh/id_ed25519
+ssh-add ~/.ssh/id_ed25519
 ```
 
-# Copy the public key 
+## Copy the public key 
 ```bash
-cat /home/runner/.ssh/id_ed25519.pub
+cat ~/.ssh/id_ed25519.pub
 ```
 
-# Add to Github 
+## Add to Github
 [GitHub → Settings → SSH and GPG keys → New SSH key](https://github.com/settings/keys)
 
-# Test the connection
+## Test the connection
 ```bash
 ssh -T git@github.com
 ```
->You should see: "Hi username! You've successfully authenticated..."
+> [!IMPORTANT]
+> **You should see:** "Hi username! You've successfully authenticated..."
 
-# Point your repo at SSH instead of HTTPS
+## Point your repo at SSH instead of HTTPS
 ```bash
-cd $HOME/workspace
 git remote add origin git@github.com:username/repo.git
 git remote -v
 git fetch
 ```
+ 
