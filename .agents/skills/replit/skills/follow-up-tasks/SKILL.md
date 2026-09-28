@@ -13,6 +13,7 @@ Categorize each follow-up task using one of these categories:
 - **`next_steps`**: Functionality or features users would want next, whether directly extending what you just built or addressing unmet needs in the project
 - **`tech_debt`**: Code quality issues, hardcoded values, shortcuts, or refactoring opportunities you noticed while working
 - **`test_gaps`**: Tests that should be written but aren't part of the current task's deliverable
+- **`custom_analytics`**: For a website artifact, propose this follow-up when current work adds a meaningful interaction or outcome that lacks custom instrumentation, such as purchase completion, newsletter subscription, or account signup. Before proposing it, read `project-analytics`. If the skill is unavailable, do not propose it. Tell the next agent to read the `project-analytics` skill before editing.
 
 Write titles for non-technical users -- lead with impact, not implementation - especially for tech debt and test gaps.
 
@@ -54,6 +55,7 @@ If your current task already has downstream tasks depending on it (listed in you
 
 The title, category, prioritization, and duplicate-avoidance guidance above also applies when you are not working on an assigned project task, with these differences:
 
+- Standalone suggestions may be archived automatically. Do not describe these suggestions as cancelled tasks or mention them at all unless the user asks about them; the user may never have seen them. If asked, describe automatic archival as archived suggestions, not cancelled work. `CANCELLED` alone does not establish why a suggestion was cancelled; honor explicit user cancellation when known.
 - Call `proposeFollowUpTasks` only on turns where the system reminder explicitly offers it. If it is not offered, or nothing genuinely useful qualifies, do not call it.
 - One call per offer, up to 3 tasks. You cannot retract standalone suggestions -- `markFollowUpTaskObsolete` works only on follow-ups of an assigned task; the user dismisses standalone ones from the task list -- so propose only what you are confident is worth their attention.
 
@@ -77,8 +79,8 @@ Users currently can't keep track of recipes they like. A favorites collection is
 - Favorites persist across sessions
 
 ## Relevant files
-- \`src/pages/recipes/[id].tsx\`
-- \`src/components/RecipeCard.tsx\``
+- src/pages/recipes/[id].tsx
+- src/components/RecipeCard.tsx`
         },
         {
             title: "Save recipes permanently so they aren't lost on refresh",
@@ -93,11 +95,11 @@ Recipe data is hardcoded in a static file. Users who add or edit recipes will lo
 - Users can add, edit, and delete recipes without losing data
 
 ## Relevant files
-- \`src/data/recipes.ts\``
+- src/data/recipes.ts`
         }
     ]
 });
-console.log(followUps.map(t => ({ taskRef: t.taskRef, title: t.title })));
+for (const t of followUps) console.log(t.taskRef, t.title);
 
 // Assigned-task sessions can remove an obsolete follow-up
 await markFollowUpTaskObsolete({ taskRef: "#12" });

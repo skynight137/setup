@@ -1,3 +1,4 @@
+
 ---
 name: replit-auth-testing
 description: Programmatic login for testing applications that use Replit Auth.
@@ -28,3 +29,4 @@ Customize this to the application at hands. Some applications require special `s
 ## After Testing
 
 After testing, the OIDC ISSUER override might still be active. Restart the API server workflows to make sure the override is cleared, if needed.
+

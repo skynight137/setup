@@ -1,28 +1,26 @@
 ---
 name: database
-description: Create and manage Replit's built-in PostgreSQL databases, check status, execute SQL queries with safety checks, and run read-only queries against the production database. Use when the user wants to check prod data, debug database issues in production, or asks to "check the prod db", "query production", "look at live data", or "see what's in the database on the deployed app". Also use when the user asks how to apply development schema changes to the production database, e.g. "push dev to prod", "migrate the production database", "sync the schema", "production is missing a column", or reports a deployed app failing with "column does not exist" / "relation does not exist".
+description: Create and manage Replit's built-in PostgreSQL databases, check status, execute SQL queries with safety checks, run read-only queries against the production database, or configure a user-managed custom database. Use when the user wants to check prod data, debug database issues in production, or asks to "check the prod db", "query production", "look at live data", or "see what's in the database on the deployed app". Also use when the user asks how to apply development schema changes to the production database, e.g. "push dev to prod", "migrate the production database", "sync the schema", "production is missing a column", or reports a deployed app failing with "column does not exist" / "relation does not exist".
 ---
 
 # Database Skill
 
 Use the project's pre-configured PostgreSQL database and execute SQL queries safely in your development and production environments.
 
-Every project comes with a PostgreSQL database already provisioned. There is no create-database step and no `createDatabase()` callback — the database always exists. Use `checkDatabase()` only to confirm it is reachable, then go straight to `executeSql()`.
-
-
+Every project comes with a PostgreSQL database already provisioned. There is no create-database step, no `createDatabase()` callback, and no reachability pre-check — the database always exists. Go straight to `executeSql()`; if the database is unreachable, the call fails with the connection error.
 
 ## When to Use
 
 Use this skill when:
 
 - Setting up schema or data in the project's pre-configured PostgreSQL database
-- Checking that the database is reachable
 - Running SQL queries against the development or production database
 - Querying data warehouses (BigQuery, Databricks, Snowflake). For Databricks, use the `databricks-m2m` connector (not the plain `databricks` connector).
 
+
 ## When NOT to Use
 
-- Schema migrations in production environments -- see "Production schema changes" below
+- Schema migrations against Replit's managed production database -- Publish applies those; see "Production schema changes" below. Projects whose production database is external are the exception described there.
 - Direct modifications to Stripe tables (use Stripe API instead)
 - Converting a pre-existing database over to Replit, unless a user explicitly asks you to.
 
@@ -31,6 +29,12 @@ Use this skill when:
 For projects that use Replit's managed PostgreSQL, the production database schema is managed automatically by Replit's Publish flow. When the user clicks Publish, Replit diffs the development schema against production, asks the user to resolve any renames in the Publish UI, and applies the diff to production. This is the supported path for changing the production schema; the agent must not write any code or scripts to migrate the production database.
 
 For the full set of rules on what the agent must and must not do here -- including specific patterns to avoid (custom migration scripts, deploy-build hooks, startup-time DDL) and the correct dev-side flow -- read `.local/skills/database/references/database-migrations-on-publish.md`.
+
+### External production databases
+
+Some projects run production against a database that Replit does not manage (Supabase, Neon, Railway, RDS, or any other PostgreSQL reached through the app's own connection string, often a secret such as `DATABASE_URL` or `EXTERNAL_DATABASE_URL`). Check for this before you give migration advice: look at what the deployed app connects to, and at `replit.md` and agent memory for a documented migration workflow.
+
+For these projects the Publish flow does not touch the production schema, and `executeSql({ environment: "production" })` does not read from it; both only see Replit's managed databases. The rules above do not apply. Apply schema changes and data fixes the way the project documents them, with the user's authorization, and confirm the target database before you write to it. Do not tell the user that Publish will migrate their schema, and do not refuse work the user has authorized because of the managed-database rules.
 
 ## Reference Documents
 
@@ -64,27 +68,6 @@ Button behavior:
 | "Show the sessions table in dev db." | `<open-in-pane tool="database/development/public/sessions"></open-in-pane>` |
 
 ## Available Functions
-
-### checkDatabase()
-
-Confirm the project's pre-configured PostgreSQL database is reachable. The database always exists; this only verifies connectivity.
-
-**Parameters:** None
-
-**Returns:** Dict with `provisioned` (bool) and `message` (str)
-
-**Example:**
-
-```javascript
-const status = await checkDatabase();
-if (status.provisioned) {
-    console.log("Database is ready!");
-} else {
-    // The database exists but is unreachable right now. Surface the message;
-    // there is no createDatabase() step.
-    console.log(status.message);
-}
-```
 
 ### executeSql()
 
@@ -295,10 +278,9 @@ loop.
 ## Best Practices
 
 1. **Use the pre-configured built-in database**: Every project already has Replit's built-in PostgreSQL database provisioned, and it is always preferred over external services like Supabase. It supports rollback and integrates directly with the Replit product. Only use external database services if the user has specific requirements. The `pg` package should be installed already.
-2. **Confirm reachability if unsure**: Call `checkDatabase()` to confirm connectivity before running queries. There is no separate creation step — the database already exists.
-3. **ALWAYS use parameterized queries with user input on the `replit_database` single-statement path**: When `target` is `replit_database` (the default) and `sqlQuery` is a single statement, you MUST use the `params` argument with `$1`, `$2`, etc. placeholders for any user-provided literal value. NEVER use string interpolation, template literals, or concatenation for values in that case. For dynamic identifiers (table/column names) or SQL keywords (sort directions, operators), validate against a strict allowlist before interpolating since `params` cannot bind those. For warehouse targets and multi-statement transactional scripts where `params` is not supported, send the whole script as a single `executeSql` call and validate any interpolated values against a strict allowlist; only split into separate calls when the statements are truly independent and don't share transaction or session state.
-4. **Test queries first**: Run SELECT queries before INSERT/UPDATE/DELETE
-5. **Keep backups**: Important data should be backed up before destructive operations
+2. **ALWAYS use parameterized queries with user input on the `replit_database` single-statement path**: When `target` is `replit_database` (the default) and `sqlQuery` is a single statement, you MUST use the `params` argument with `$1`, `$2`, etc. placeholders for any user-provided literal value. NEVER use string interpolation, template literals, or concatenation for values in that case. For dynamic identifiers (table/column names) or SQL keywords (sort directions, operators), validate against a strict allowlist before interpolating since `params` cannot bind those. For warehouse targets and multi-statement transactional scripts where `params` is not supported, send the whole script as a single `executeSql` call and validate any interpolated values against a strict allowlist; only split into separate calls when the statements are truly independent and don't share transaction or session state.
+3. **Test queries first**: Run SELECT queries before INSERT/UPDATE/DELETE
+4. **Keep backups**: Important data should be backed up before destructive operations
 
 ## Environment Variables
 
@@ -311,16 +293,12 @@ The pre-configured database exposes these environment variables:
 - `PGPASSWORD`: Database password
 - `PGDATABASE`: Database name
 
+
+
 ## Example Workflow
 
 ```javascript
-// 1. Confirm the pre-configured database is reachable
-const status = await checkDatabase();
-if (!status.provisioned) {
-    console.log(`Database unreachable: ${status.message}`);
-}
-
-// 2. Create schema
+// 1. Create schema
 await executeSql({
     sqlQuery: `
         CREATE TABLE IF NOT EXISTS users (
@@ -331,13 +309,13 @@ await executeSql({
     `
 });
 
-// 3. Insert data (using parameterized query)
+// 2. Insert data (using parameterized query)
 await executeSql({
     sqlQuery: "INSERT INTO users (email) VALUES ($1)",
     params: ['user@example.com']
 });
 
-// 4. Query data
+// 3. Query data
 const result = await executeSql({ sqlQuery: "SELECT * FROM users" });
 console.log(result.output);
 ```
@@ -349,6 +327,7 @@ console.log(result.output);
 - Cannot modify Stripe schema tables (read-only)
 - Destructive queries (DROP, TRUNCATE, etc.) are blocked via the skill callback path
 - Mutating queries blocked in Planning mode
+
 
 ## Rollbacks
 

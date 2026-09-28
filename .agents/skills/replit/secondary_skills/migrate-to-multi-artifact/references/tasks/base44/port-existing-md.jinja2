@@ -39,7 +39,7 @@ Base44 apps follow a very consistent shape — assume this layout:
 | `base44.auth.*` | Clerk (see the authentication skill) |
 | `InvokeLLM` / `GenerateImage` / `ExtractDataFromUploadedFile` | AI integrations (OpenAI / Anthropic) — see migration-guardrails skill |
 | `UploadFile` | Object storage integration (`javascript_object_storage`) |
-| `SendEmail` / `SendSMS` | Integrations skill, else stub |
+| `SendEmail` / `SendSMS` | Integrations skill (or the `## Integrations` guidance in your instructions), else stub |
 | `base44.appLogs.*` | Delete (no equivalent needed) |
 
 ### Files to delete after the swap

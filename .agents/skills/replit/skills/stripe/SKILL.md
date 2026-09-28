@@ -97,7 +97,7 @@ Read the code-templates reference file for full code file templates to use durin
       );
 
       // 4. Sync all existing Stripe data
-      await stripeSync.syncBackfill();
+      await stripeSync.syncBackfill({ object: 'all' });
     }
 
     await initStripe();
@@ -425,7 +425,7 @@ await runMigrations({ databaseUrl });
 await runMigrations({ databaseUrl });
 const stripeSync = await getStripeSync();
 await stripeSync.findOrCreateManagedWebhook(...);
-await stripeSync.syncBackfill();
+await stripeSync.syncBackfill({ object: 'all' });
 ```
 
 **Frontend - Must parse JSON responses:**

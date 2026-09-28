@@ -15,9 +15,9 @@ Clerk Auth gives the user's app its own dedicated authentication system, powered
   - A `pk_test` Clerk publishable key in `.replit` config or environment
   - Console logs that say things like "Clerk has been loaded with development keys" or otherwise warn about development keys
 - **Login methods**: email/password (with email verification) and SSO via Google, GitHub, Apple, and X; custom OAuth credentials supported in Production for branded consent screens
-- **Managed from the Auth pane**: user management and consent screen configuration managed from the builtin Auth pane
+- **Managed from the Auth pane**: app info (name and app icon) and Google, GitHub, Apple, and X SSO provider configuration for the separate Development and Production environments
 - **Not supported today**: SMS/phone sign-in, organization tenants
-- **Configured in the Clerk dashboard when authorized, not in code**: MFA/2FA, session length, password breach checks, embedded/native webview sign-in, email sender name — see "Intent: Dashboard-side settings" below
+- **Configured in the Clerk dashboard when authorized, not in code**: email/password sign-in on or off, MFA/2FA, session length, password breach checks, embedded/native webview sign-in, email sender name — see "Intent: Dashboard-side settings" below
 
 ## When to Use
 
@@ -77,6 +77,7 @@ Enterprise SSO connection requests include Okta Workforce, Microsoft Entra ID (f
   - Example question: "How do I add Apple login?"
   - Example query: `"Configure custom <provider_name> OAuth credentials for Clerk Auth"`
   - After the search, direct the user to the **Auth pane** in the workspace toolbar.
+- Email/password is not an SSO provider and cannot be enabled or disabled in the Auth pane. For requests such as disabling email/password, follow **Intent: Dashboard-side settings** when the management status is `managed`.
 - **Clerk DNS, custom domain, email verification, DKIM, or SPF setup questions**
   - Example question: "How do I set up Clerk DNS for email verification?"
   - Example query: `"Set up Clerk DNS for email verification"`
@@ -124,7 +125,7 @@ Use the dashboard-home fallback only when all of these conditions are true:
 3. The user asks to administer Replit-managed Clerk in the Clerk dashboard, not in code or the Auth pane.
 4. No table row above has a specific dashboard destination for the request.
 
-Do not use this fallback for implementation, troubleshooting, documentation, feature-support, pricing, login-provider, or Auth pane requests. Do not use it for another authentication provider. Do not use it when the management status is `external`, `unknown`, or `not_configured`.
+Do not use this fallback for implementation, troubleshooting, documentation, feature-support, pricing, or Auth pane requests. Do not use it for another authentication provider. Do not use it when the management status is `external`, `unknown`, or `not_configured`.
 
 Tell the user that the setting is in the Clerk dashboard. Give dashboard navigation steps only when you know them. Do not guess a dashboard location. Replit-managed Clerk has separate Development and Production instances. Use the environment switcher at the top of the Clerk dashboard to select the instance for this change. End the reply with this marker on its own line:
 

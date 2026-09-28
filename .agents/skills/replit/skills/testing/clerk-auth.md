@@ -1,3 +1,4 @@
+
 ---
 name: clerk-auth-testing
 description: Programmatic login for testing applications that use Clerk Auth.
@@ -21,3 +22,4 @@ n+3. [Verify] Verify the user email is ${login_email} (data-testid="user-email-d
 </test_plan>
 
 Customize this to the application at hand.
+

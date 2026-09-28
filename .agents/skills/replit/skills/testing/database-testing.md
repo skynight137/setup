@@ -1,3 +1,4 @@
+
 ---
 name: database-testing
 description: Complements the `testing` skill with direct database access during Playwright tests. Read this skill if a) you need to use the playwright testing skill and b) the application uses a database that you want to query or mutate during tests.
@@ -22,3 +23,4 @@ n. [DB] Update the user so it's an admin by "UPDATE users SET is_admin = true WH
 
 k. [DB] Check that the number of likes for the product has increased by 1 using the query: SELECT * FROM products WHERE id = '${product1Id}'
 ```
+

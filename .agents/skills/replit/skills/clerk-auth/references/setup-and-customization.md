@@ -4,6 +4,8 @@ Set up Clerk authentication with proxy support. Keys are automatically provision
 
 ## Setup
 
+**Steps 2 to 4 are required even when the app has no backend.** They set up the proxy that serves `clerk.browser.js` in production. Without them, the published app cannot load Clerk.
+
 ### Step 1: Provision Clerk App
 
 Use the `codeExecution` tool to call `setupClerkWhitelabelAuth` to provision your Clerk app and set secrets:

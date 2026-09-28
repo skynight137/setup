@@ -455,7 +455,6 @@ Then once the component is built, `update` the placeholder's shapeId to set the 
 }
 ```
 
-
 ### Suggested next steps (required when marking a design frame live)
 
 Every design frame must carry 3 `suggestedActions` by the time it goes `state: "live"` — attach them in that same update (ideally also up front on the still-`building` frame so the cards appear immediately), for every live design frame including each fan-out variant and any frame spawned from a clicked suggestion. They render as one-click ghost-frame cards beside the frame; clicking one drops a new building frame and sends that prompt with the frame as context. A live design frame without them is a bug.
@@ -519,8 +518,6 @@ This is the one case where you replace a mockup's file with a new file under a d
 **Exploring a suggested action is not a modification.** When the work comes from a clicked ghost-frame suggestion, or any "iterate on this frame" / "what else could this be?" request, create a **new** component file and a **new** frame for the explored direction — do not edit the source frame's file or overwrite its `url`/contents in place. The source frame is the user's reference point and must stay intact. In-place modification (above) is only for an explicit "change *this* frame" request.
 
 **Never delete a reserved building frame.** A `state: "building"` iframe you did not create this turn is a reserved slot the client placed (e.g. from a clicked ghost-frame suggestion) for this loop or the next one. Fill it with an `update` if it's the slot for your current work; never delete one as "stray"/leftover cleanup. You may only delete building placeholders you created earlier this same turn and chose not to fill.
-
-
 
 ### Pattern A: Design variants (fan-out)
 

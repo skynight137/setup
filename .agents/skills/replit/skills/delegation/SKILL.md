@@ -33,7 +33,11 @@ Use this skill when:
 
 **Parameters:**
 
-- `name` (required): a short handle you pick, alphanumeric and `-` only, e.g. `"auth-fix"`. `subagent` always creates a new one (a live-name clash is auto-renamed), so to continue an existing subagent use `sendFollowup` with the result's `name`.
+- `name` (required): a short handle you pick, alphanumeric and `-` only, e.g. `"auth-fix"`. A name identifies one subagent:
+  - no live subagent has it: `subagent` creates one under that name;
+  - a live subagent of the same kind, created in this same environment, has it: the call continues that subagent exactly as `sendFollowup` would, with `task` as its next message. Per-request context (`relevantFiles`, `relevantSkills`, an architect's `includeGitDiff` and `relevantGitCommits`) arrives in that message; the settings fixed at creation (an architect's `responsibility`, a design worker's `outputDir`) stay as they were, and a create that asks for different ones fails;
+  - a live subagent of another kind, or one created in another environment, has it: the call fails; pick another name, or use `sendFollowup`.
+  A finished subagent keeps its name for a while; once it has aged out, the name is free again.
 - `task` (required): the full task, question, or test plan. Put all detail here.
 - `config.$kind` (required): the kind of subagent to create. This is specific to the skill that uses the subagent callback. A non-specialized subagent must use the $kind: "general".
 - Other config values are specific to the skill that uses the subagent callback.
@@ -45,6 +49,7 @@ Use this skill when:
 A general subagent is a generic subagent that can be used for any task. The `config` object for a general subagent can include:
 - `config.relevantFiles`: workspace-relative paths the subagent reads first. Files accept 1-based line ranges, e.g. `"src/auth.ts:10-50"`.
 - `config.relevantSkills`: skill paths the subagent reads first.
+- `config.inheritContext`: `"none"` (default), `"recentMessages"` (your last few user messages and everything after them), or `"allMessages"`: how much of your conversation a new worker starts with as read-only background. Ignored when the create continues a live worker.
 
 For example:
 ```js
@@ -61,32 +66,35 @@ const authfixResult = await subagent({
 console.log(authfixResult.text); // Mainly the `text` matter. Unless the skill for a particular specialized subagent indicates otherwise.
 ```
 
-#### Sidekick
-
-Some sessions include a persistent sidekick worker — if yours does, your system prompt describes it in detail; without that section, the `sidekick` kind does not exist for you. Its config takes no fields beyond `$kind: "sidekick"`. Exception to the create semantics above: a sidekick create whose `name` lands on the live sidekick continues that sidekick (no auto-rename, no fresh context); only a new name starts a separate one.
-
 ### sendFollowup
 
-`sendFollowup({ name, message })` continues an **existing** subagent, keeping its
-history and context instead of starting fresh. This is the only way to follow up
-on a subagent — calling `subagent` again creates a new one (see `name` above).
+`sendFollowup({ name, message })` continues an
+**existing** subagent, keeping its history and context instead of starting fresh.
+The `name` rules above say when a `subagent` call continues rather than creates.
 
 **Parameters:**
 
-- `name` (required): the canonical `name` returned by the original `subagent` call. Note: `subagent` call can in rare cases return a different name for disambiguation. You will be told if that ever happens.
+- `name` (required): the `name` returned by the original `subagent` call.
 - `message` (required): the follow-up instruction or question. Put all detail here.
 
 `sendFollowup` returns the same kind of job as `subagent` — await it for the
 subagent's result (same `{ name, text, jobId, status }` shape) or run it in the background without awaiting it.
 
 ```js
-const firstJob = subagent({ name: "auth-fix", task, config: { $kind: "general" } });
+const firstJob = subagent({
+  name: "auth-fix",
+  task,
+  config: { $kind: "general" },
+});
 ```
 
 After the subagent finishes in the background, you can continue it with `sendFollowup`.
 ```js
 // Continue the SAME subagent — do NOT call subagent() again.
-const followup = await sendFollowup({ name: "auth-fix", message: "For your auth.tsx changes, make sure to comment out the tests for now." });
+const followup = await sendFollowup({
+  name: "auth-fix",
+  message: "For your auth.tsx changes, make sure to comment out the tests for now.",
+});
 console.log(followup.text);
 ```
 

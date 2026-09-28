@@ -562,7 +562,7 @@ async function initStripe() {
     console.log('Webhook configured:', JSON.stringify(webhookResult?.webhook?.url || 'setup complete'));
 
     console.log('Syncing Stripe data...');
-    stripeSync.syncBackfill()
+    stripeSync.syncBackfill({ object: 'all' })
       .then(() => {
         console.log('Stripe data synced');
       })

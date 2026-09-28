@@ -319,9 +319,7 @@ Embed live web content. Use the `state` field to manage the iframe lifecycle:
 - `"modifying"` -- Set before editing an existing component's backing file.
 - `"live"` -- Set when the component is ready to display. URL is **required** in this state.
 
-
 > **REQUIRED for every design/mockup iframe.** Any agent that takes a design/mockup iframe to `state: "live"` MUST attach 3 `suggestedActions` in the **same** `applyCanvasActions` update that sets `"live"` — never "I'll add them after". This applies to every live transition: the first frame, every fan-out variant, and any frame spawned from a clicked suggestion. They render as one-click ghost-frame cards beside the live frame; clicking one sends that prompt with the frame as context. A live design frame with no `suggestedActions` is a bug. The one exception is non-design iframes that embed a running app/artifact, which do not take `suggestedActions`. Author them with **design-exploration** thinking — see the boxed rules below.
-
 
 Create the iframe immediately with `state: "building"`, then update it to `"live"` once the URL is available. Use `create-auto` unless you need exact coordinates:
 
@@ -363,7 +361,6 @@ await applyCanvasActions({ actions: [
 ] });
 ```
 
-
 ### Authoring `suggestedActions` (think like design-exploration)
 
 Each `suggestedAction` is an object: `content` (`{ kind: "prompt", prompt }` — the hidden execution prompt sent verbatim when clicked), a required user-facing `label` (the card body, ≤60 chars), an optional freeform `category` style hint, and an authored short `id` slug (used for accept/dedup/telemetry). Apply the **design-exploration** skill's principles (`pkg/agent-skills/skills/design-exploration/SKILL.md`):
@@ -388,7 +385,6 @@ When a user clicks a ghost-frame suggestion (or otherwise asks to explore a vari
 
 A `state: "building"` iframe you did **not** create this turn is a reserved slot — the system placed it (e.g. from a clicked ghost-frame suggestion) so the next agent loop has somewhere to build. Never delete one as "stray"/leftover cleanup: fill it with an `update` if it's the slot for your current work, otherwise leave it alone. You may only delete building placeholders **you** created earlier in this same turn and chose not to fill.
 
-
 **Note: `create` and `update` actions have different payload structures.**
 
 - **Create** defines a new shape from scratch, so it takes a full `shape` object: `shape: { type: "iframe", ... }`
@@ -396,7 +392,7 @@ A `state: "building"` iframe you did **not** create this turn is a reserved slot
 - **Update** patches an existing shape, so it takes a partial `updates` object: `updates: { shapeType: "iframe", ... }` -- the field is `shapeType` (not `type`) because `type` is already the action discriminator
 - Do not copy the payload key from a create into an update or vice versa -- the wrong key passes validation but the action will fail when applied.
 
-To get the URL for a Replit dev server, run `echo $REPLIT_DOMAINS` in the shell to get the domain, then construct the full URL. For the main app on port 5000, no port suffix is needed. For other ports, append `:<port>`.
+To get the URL for a non-mockup Replit dev server, run `echo $REPLIT_DOMAINS` in the shell to get the domain, then construct the full URL. For the main app on port 5000, no port suffix is needed. For other ports, append `:<port>`.
 
 - `url` -- Full `https://` URL to embed. Required when `state` is `"live"`.
 - `state` -- Lifecycle state. Always set this on create and when transitioning.
@@ -405,7 +401,7 @@ To get the URL for a Replit dev server, run `echo $REPLIT_DOMAINS` in the shell 
 - `componentProps` -- Extra props dict merged into shape props.
 - `suggestedActions` -- Up to 3 follow-up suggestion objects shown as one-click ghost-frame cards beside a live design frame. Required when taking a design/mockup frame to `"live"` (see the boxed rule above); set them in the same update that sets `"live"`.
 
-**To embed individual React components** (not just the full app), use the **mockup-sandbox** skill. It sets up a vite preview server where each component gets its own route at `/preview/{folder}/{ComponentName}`. Embed these URLs as iframe shapes. For example, a pricing card component at `mockup/client/src/components/mockups/pricing/Card.tsx` would be embedded with URL `https://<domain>:8000/preview/pricing/Card`.
+**To embed individual React components** (not just the full app), use the **mockup-sandbox** skill. Follow that skill for every mockup component path and preview URL. Do not derive mockup URLs from the generic dev-server rules above.
 
 ### Create Image
 
@@ -514,9 +510,9 @@ Pan and zoom the user's canvas viewport to center on specific shapes. **Only cal
 - **Never delete a building frame you didn't create** -- a prior-turn `state: "building"` iframe is a reserved slot for pending work; fill it or leave it. Only delete building placeholders you created this turn.
 - **URL must be `https`** -- `http` and `about:blank` are rejected.
 - **Resolve the domain first** -- run `echo $REPLIT_DOMAINS` in the shell, then build the URL from the result. Never pass a literal template string as the URL.
-- **Port rules:** no port suffix = port 5000 (main app). For other servers, append `:<port>`.
+- **Non-mockup port rules:** no port suffix = port 5000 (main app). For other servers, append `:<port>`.
 - **External sites may block embedding** -- sites with `X-Frame-Options: DENY` or restrictive CSP headers will show a blank iframe. Replit dev URLs work fine.
-- **Never embed the main app URL for component previews** -- the main app URL shows the entire app with navigation, layout, and routing -- not an isolated component. Use the **mockup-sandbox** skill to set up a preview server, then embed `/preview/{folder}/{Component}` URLs. This gives you isolated components that can be iterated on independently. The mockup sandbox runs on port 8000 (append `:8000` to the domain).
+- **Never embed the main app URL for component previews** -- the main app URL shows the entire app with navigation, layout, and routing -- not an isolated component. Use the **mockup-sandbox** skill to set up a preview server. Follow that skill for every mockup component path and preview URL rather than constructing one from these generic iframe rules.
 
 ## Typical Workflow
 

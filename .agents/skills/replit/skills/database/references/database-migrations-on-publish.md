@@ -2,6 +2,8 @@
 
 How database schema changes flow from development to production for projects that use Replit's managed PostgreSQL, and what the agent must (and must not) do.
 
+This document applies only when production runs on Replit's managed PostgreSQL. If the deployed app connects to an external database (Supabase, Neon, Railway, RDS, or any PostgreSQL behind the app's own connection string), Publish does not migrate that database and none of the rules below apply. Use the project's documented migration workflow instead, and confirm the target before you write to it.
+
 ## The Two Automatic Schema Application Points
 
 Replit applies schema changes for you in **exactly two** places. Anything outside of these two is unsupported and the agent must not invent a third.

@@ -144,6 +144,8 @@ When an assigned project task is done, call `markTaskComplete({...})` as the fin
 
 **Returns:** `{ kind: "markTaskComplete", outcome, text }`. If `outcome` is not `"completed"`, read `text`, address the issue, and call `markTaskComplete` again when ready.
 
+If you cannot resolve the issue, or the call throws, do not end with a plain progress summary. Tell the user that the task is not complete, what failed, and a concrete next step they can take or approve, such as retrying, fixing a named setup issue, or providing missing access. Name checks the user configured (like a failing validation command) exactly, but describe system steps in plain terms, not internal service or error names. If a retry is the only option, tell them to reply when they want you to try again; do not ask them to wait for a system they cannot see.
+
 **Examples:**
 
 ```javascript
@@ -372,6 +374,7 @@ Follow these rules strictly when discussing tasks with the user:
    - The `MAIN_*` variants use the same display name as their base state (e.g. `MAIN_IN_PROGRESS` -- "Active", `MAIN_IMPLEMENTED` -- "Ready"). Tasks also carry a `displayState` field with the `MAIN_` prefix stripped, so mapping on `displayState` covers them automatically.
    - A `blockedBy: "DRIFT"` task -- "Affected by another task that changed"
 3. **Never expose implementation details**: Do not reveal function names (`bulkCreateProjectTasks`, `updateProjectTask`, etc.), API surface, or internal task system mechanics to the user
+4. Follow-up suggestions may be archived automatically and appear as `CANCELLED`; this alone does not mean the user cancelled work. `followUpCategory` identifies a suggestion's origin, not its cancellation reason. Do not describe these suggestions as cancelled tasks or mention them at all unless the user asks about them; the user may never have seen them. If asked, describe automatic archival as archived suggestions, not cancelled work. Do not infer user rejection or say "nothing is running" from this state alone; honor explicit user cancellation when known. If the user asks for that work, follow the mode and task-routing rules above.
 
 ## Best Practices
 

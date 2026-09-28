@@ -22,6 +22,8 @@ A saved slides or web artifact template is a reusable visual-language donor (the
 
 Call `useArtifactTemplate()` as a CodeExecution callback (await it inside a code block).
 
+For slides, read the `slides` skill before these calls. For a new deck, use its combined question flow for any missing direction. If that flow asks for a version, wait for the returned selection before calling `useArtifactTemplate`. A named, saved, or attached template skips style selection only, not version selection. For an existing deck, infer the format from its manifest without asking for a new version; for a mixed deck, use the format of its last manifest entry. The slides skill controls eligibility; a donor never grants Slides 2.0 access.
+
 **List the user's saved templates** (no argument):
 
 ```javascript
@@ -52,6 +54,8 @@ The template is a **style donor**, not content to copy:
 - **Restyle:** rewrite an existing artifact's styling in that visual language while preserving its existing content.
 
 Do not copy the donor template's own content verbatim unless the user explicitly asks.
+
+For slides, replicate the template's design near identically rather than treating it as a loose style guide. Clone the matching template slide's layout, styling, and composition for each new slide, swap only the content, and deviate only when the user explicitly asks. Preserve the selected output format, including when an attached template uses another format. When the result offers instructions per version, follow the ones for your resolved `slideFormat`. Inspect the donor manifest and preview images first. For SDM output with a legacy donor, translate its visual language into SDM documents rather than copying JSX. For legacy output with an SDM donor, translate its visual language into JSX and viewport-relative CSS rather than copying SDM documents. Use the format-specific build and QA references from the `slides` skill. PPTX attachments still follow that skill's import-first flow.
 
 ## Saving an artifact as a template
 

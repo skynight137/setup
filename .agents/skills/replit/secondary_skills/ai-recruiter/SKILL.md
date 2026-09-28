@@ -391,7 +391,7 @@ When the user wants to communicate decisions to candidates (confirmations, rejec
 
 ##### Email workflow
 
-1. **Draft first, send second.** Always show the user the email content before sending. Use `confirm_connector_operation` to get explicit approval before each send.
+1. **Draft first, send second.** Always show the user the email content before sending, and wait for their explicit go-ahead in chat before each send.
 2. **Personalize every email.** Reference the candidate's name, the specific role, and at least one detail from their CV (e.g., "your experience leading the migration at Acme Corp").
 
 3. **Match tone to decision:**
@@ -434,7 +434,7 @@ const result = await (async function() {
 
   // Use the Gmail API to send emails
 
-  // Always use confirm_connector_operation before sending
+  // Send only after the user's explicit go-ahead in chat
 
   return { ok: true };
 })();
@@ -444,7 +444,7 @@ console.log(result);
 
 ###### Rules
 
-- Never send emails without explicit user approval via `confirm_connector_operation`
+- Never send emails without the user's explicit approval in chat
 - Always show the draft to the user first and let them edit if needed
 
 - Send one email at a time, confirming each with the user (unless they explicitly approve batch sending)
@@ -779,7 +779,7 @@ const result = await (async function() {
 
   // Use the Google Sheets API to create and update the tracking spreadsheet
 
-  // Always use confirm_connector_operation before write operations
+  // Write only after the user's explicit go-ahead in chat
 
   return { ok: true };
 })();
@@ -837,7 +837,7 @@ const result = await (async function() {
 
   // Use the Google Calendar API to check availability and create events
 
-  // Always use confirm_connector_operation before creating events
+  // Create events only after the user's explicit go-ahead in chat
 
   return { ok: true };
 })();
@@ -939,7 +939,7 @@ Task format (adapt to the platform):
 3. Use `listConnections('[connection name]')` inside `"use impure"` to get credentials once connected
 4. Ask the user where to send notifications (channel, project, board, or database)
 
-5. Always use `confirm_connector_operation` before creating tasks or sending messages
+5. Always get the user's explicit go-ahead in chat before creating tasks or sending messages
 
 ```javascript
 
@@ -957,7 +957,7 @@ const result = await (async function() {
 
   // Use the platform's API to send messages or create tasks
 
-  // Always use confirm_connector_operation before write operations
+  // Write only after the user's explicit go-ahead in chat
 
   return { ok: true };
 })();

@@ -70,6 +70,7 @@ The following are **not** bugs. Do not "fix" them, do not edit the related code,
 - **Console says "Clerk has been loaded with development keys" or otherwise warns about development keys.** Expected for the same reason as above. This is a normal Clerk development warning, not a misconfiguration.
 - **User can't sign in to the published app with the account they made in dev (or vice versa).** Expected. Dev and prod have completely separate user stores — accounts and data do not cross over. The user needs to sign up again in the published app.
 - **Server-side proxy code only runs in production / `CLERK_PROXY_URL` is empty or not defined in dev.** Expected. The dev app talks to the Clerk dev FAPI directly, without going through the proxy — the proxy is production-only. Do not ask for or set proxy-related env vars in dev.
+- **Direct TLS checks fail on `clerk.<domain>` or `accounts.<domain>` for a Replit-managed published app.** Expected. Production Clerk traffic uses the app's `/api/__clerk` proxy, not those hosts directly. Do not change DNS, reconnect the domain, or escalate certificate provisioning. Re-sync the app with the canonical proxy wiring instead.
 
 If the user is convinced one of the above is the bug, gently explain why it isn't, then redirect to the actual user-visible symptom and re-evaluate against the divergence section above.
 

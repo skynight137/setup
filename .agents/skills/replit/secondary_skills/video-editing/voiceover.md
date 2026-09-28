@@ -778,3 +778,4 @@ return outputPath;
 
 - **Cost awareness:** ElevenLabs charges per character. Long narrations can add up. Let the user know the approximate character count before generating.
 - **Multilingual:** The `eleven_multilingual_v2` model supports 29 languages. The text language is auto-detected. No special configuration needed — just write the text in the target language.
+
