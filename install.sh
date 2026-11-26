@@ -180,7 +180,7 @@ fi
 # one script, no separate distro installer file. The script file is
 # removed after the run (trap), success or failure.
 echo "== Distro phase (inside proot-distro ubuntu) =="
-DISTRO_ROOT="${PREFIX:-/data/data/com.termux/files/usr}/var/lib/proot-distro/installed-rootfs/ubuntu"
+DISTRO_ROOT="${PREFIX:-/data/data/com.termux/files/usr}/var/lib/proot-distro/containers/ubuntu/rootfs"
 [ -d "$DISTRO_ROOT" ] || { echo "ERROR: ubuntu rootfs not found at $DISTRO_ROOT" >&2; exit 1; }
 DISTRO_SCRIPT="$DISTRO_ROOT/root/.setup-distro.sh"
 trap 'rm -f "$DISTRO_SCRIPT"' EXIT
