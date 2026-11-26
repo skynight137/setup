@@ -43,10 +43,10 @@
 #   4. Installs proot-distro and the ubuntu distro (skipped if already present).
 #   5. Runs the Ubuntu phase (install-distro.sh) inside the distro, or prints
 #      the command to run it manually.
-# No `set -euo pipefail` here, deliberately. Same reason as install-distro.sh:
-# a manual run has no issues; the installer must behave the same way — visible
-# output, no silent abort. `set -e` killed the script on the first transient
-# failure while output redirected to /dev/null hid where and why it died.
+# Clean look: fail fast on error. Repair is a separate step — if the
+# install fails, the error is visible and the run stops, instead of
+# continuing into a half-installed state.
+set -euo pipefail
 
 REPO_URL="https://github.com/skynight137/setup.git"
 REPO_BRANCH="termux"

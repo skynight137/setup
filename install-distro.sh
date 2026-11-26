@@ -6,6 +6,7 @@
 # Usage (from inside the distro):
 #   /data/data/com.termux/files/home/setup/install-distro.sh
 #   /data/data/com.termux/files/home/setup/install-distro.sh --no-uv
+#   /data/data/com.termux/files/home/setup/install-distro.sh --doctor
 #
 # Or from Termux (one command, runs the same script inside the distro):
 #   proot-distro login ubuntu -- /data/data/com.termux/files/home/setup/install-distro.sh
@@ -26,19 +27,23 @@
 #      in place — a stale cache from an earlier broken run is what made
 #      zsh fail to find _autocomplete__unambiguous).
 #   6. Installs uv (default on; the dotfiles source ~/.local/bin/env).
-#   7. Prints the re-login command to get zsh + powerlevel10k.
-# No `set -euo pipefail` here, deliberately. A manual run (typing the same
-# commands one by one) has no issues; the installer must behave the same
-# way — visible output, no silent abort. `set -e` killed the script on the
-# first transient failure and, combined with output redirected to /dev/null,
-# hid where and why it died, leaving a half-installed system. Failures are
-# handled explicitly instead: ensure_clone() retries and verifies, and the
-# script collects failed clones and reports them at the end.
+#   7. Prints the re-login command to get zsh + powerlevel10k, and a
+#      notice to run --doctor if zsh shows completion errors.
+#
+# --doctor (repair mode, run after zsh is installed): checks .bashrc,
+# .p10k.zsh, .zshrc against the repo (restores any that are missing or
+# differ), then deletes and re-clones the 4 plugins, then clears
+# ~/.zcompdump*. The main install can leave the plugins in a state zsh
+# does not like even when the files look complete; deleting and
+# re-cloning after zsh has prepared itself is the fix that works.
+set -euo pipefail
 
 WITH_UV=1
+DOCTOR=0
 for arg in "$@"; do
     case "$arg" in
         --no-uv) WITH_UV=0 ;;
+        --doctor) DOCTOR=1 ;;
         -h|--help)
             sed -n '2,20p' "${BASH_SOURCE[0]:-$0}"
             exit 0
@@ -160,6 +165,48 @@ ensure_clone() {
     return 1
 }
 
+# --doctor: repair mode, run after zsh is installed. The main install can
+# leave the plugins in a state zsh does not like even when the files look
+# complete; deleting and re-cloning after zsh has prepared itself is the
+# fix that works. Checks the config files, then force re-clones the 4
+# plugins, then clears the completion cache.
+if [ "$DOCTOR" -eq 1 ]; then
+    echo "== doctor: checking config files =="
+    for f in .bashrc .p10k.zsh .zshrc; do
+        if [ ! -f "$HOME/$f" ]; then
+            echo "$f: MISSING — restoring from repo"
+            cp "$DISTRO_DIR/$f" "$HOME/$f"
+        elif ! cmp -s "$DISTRO_DIR/$f" "$HOME/$f"; then
+            echo "$f: DIFFERS from repo — restoring"
+            cp "$DISTRO_DIR/$f" "$HOME/$f"
+        else
+            echo "$f: ok (matches repo)"
+        fi
+    done
+    echo "== doctor: re-cloning 4 plugins =="
+    DOCTOR_FAILED=""
+    for spec in \
+        "zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting" \
+        "zsh-autosuggestions https://github.com/zsh-users/zsh-autosuggestions" \
+        "zsh-fzf-history-search https://github.com/joshskidmore/zsh-fzf-history-search" \
+        "zsh-autocomplete https://github.com/marlonrichert/zsh-autocomplete" ; do
+        name="${spec%% *}"
+        url="${spec#* }"
+        dest="$HOME/.oh-my-zsh/custom/plugins/$name"
+        rm -rf "$dest"
+        ensure_clone "$url" "$dest" "$name.plugin.zsh" || DOCTOR_FAILED="$DOCTOR_FAILED $name"
+    done
+    echo "== doctor: clearing completion cache =="
+    rm -f "$HOME"/.zcompdump*
+    if [ -n "$DOCTOR_FAILED" ]; then
+        echo "ERROR: these plugins still failed to clone:$DOCTOR_FAILED" >&2
+        exit 1
+    fi
+    echo ""
+    echo "Doctor done. Re-login or run: exec zsh"
+    exit 0
+fi
+
 FAILED_CLONES=""
 echo "== powerlevel10k theme =="
 ensure_clone https://github.com/romkatv/powerlevel10k.git "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" "powerlevel10k.zsh-theme" || FAILED_CLONES="$FAILED_CLONES powerlevel10k"
@@ -212,3 +259,6 @@ echo ""
 echo "Done. Exit and re-login to get zsh + powerlevel10k:"
 echo "  exit"
 echo "  proot-distro login ubuntu"
+echo ""
+echo "If zsh shows completion errors (e.g. \"command not found: _autocomplete__unambiguous\"), run the doctor:"
+echo "  proot-distro login ubuntu -- /data/data/com.termux/files/home/setup/install-distro.sh --doctor"
