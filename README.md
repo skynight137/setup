@@ -28,7 +28,16 @@ setup/                  # clone target: ~/setup on Termux
 ## Quick start (fresh Termux)
 
 Install from the shared zip (repo stays private — no download from GitHub).
-The shared zip lands in Downloads after you receive it (e.g. via Telegram):
+The shared zip lands in Downloads after you receive it (e.g. via Telegram).
+
+First, grant storage access. Run it manually — from inside a script the
+permission dialog often does not appear:
+
+```
+termux-setup-storage
+```
+
+Then copy the zip to Termux home, unpack, and run the installer:
 
 ```
 pwd    # /data/data/com.termux/files/home
@@ -39,9 +48,6 @@ cd setup-termux
 ./install-termux.sh --auto     # also run the Ubuntu phase, no prompt
 ./install-termux.sh --no-distro  # Termux phase only
 ```
-
-(If `cp` fails with permission denied, run `termux-setup-storage` first and
-allow the storage permission, then retry.)
 
 Or let the installer unpack the zip for you (unpacks to `~/setup`):
 
