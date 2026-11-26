@@ -4,10 +4,10 @@ Two-phase setup: Termux style + Ubuntu (proot-distro) with zsh, oh-my-zsh,
 powerlevel10k and plugins. The config files live in this repo (branch `termux`),
 the installers copy them from the local checkout — no curl from another repo.
 
-> Note: this repo is **private** and stays private. There is no download
-> from GitHub. The repo is shared as a zip file: copy the zip to Termux
-> home, unpack it, and run the installer from inside the unpacked dir.
-> (If the repo is ever made public, the git-clone route below works too.)
+> Note: this repo is **public**. The one-command bootstrap below works
+> from a fresh Termux. A shared zip still works too: copy the zip to
+> Termux home, unpack it, and run the installer from inside the
+> unpacked dir.
 
 ## Layout
 
@@ -27,8 +27,18 @@ setup/                  # clone target: ~/setup on Termux
 
 ## Quick start (fresh Termux)
 
-Install from the shared zip (repo stays private — no download from GitHub).
-The shared zip lands in Downloads after you receive it (e.g. via Telegram).
+One command, end to end:
+
+```
+curl -fsSL https://raw.githubusercontent.com/skynight137/setup/refs/heads/termux/install-termux.sh | bash
+```
+
+The installer installs git first if it is missing, then clones the repo
+and runs the Termux phase (it prompts to run the Ubuntu phase; use
+`--auto` to run it without prompting).
+
+Or install from a shared zip. The shared zip lands in Downloads after
+you receive it (e.g. via Telegram).
 
 The installer handles storage access itself (`termux-setup-storage` runs
 inside it — allow the permission dialog when it appears). Copy the zip to
@@ -58,16 +68,9 @@ git clone --branch termux --single-branch https://github.com/skynight137/setup.g
 ~/setup/install-termux.sh
 ```
 
-One command, end to end (only works if the repo is public):
-
-```
-curl -fsSL https://raw.githubusercontent.com/skynight137/setup/refs/heads/termux/install-termux.sh | bash
-```
-
 The installer obtains the repo in this order: `--zip` first (unpacks a local
 zip to `~/setup`), then the local checkout/unpacked dir it runs from, then
-`git clone`. The script never downloads the repo zip — the zip is shared as
-a file. If none of those work it stops and tells you to copy the shared zip
+`git clone`. If none of those work it stops and tells you to copy the shared zip
 to Termux home, unpack it, and run the installer from inside.
 
 What `install-termux.sh` does:

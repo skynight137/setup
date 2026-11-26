@@ -9,8 +9,9 @@
 #   ./install-termux.sh --no-distro  Termux phase only, never touch the distro
 #   ./install-termux.sh --zip FILE   Unpack a local repo zip to ~/setup, then install
 #
-# The repo is private, so there is no download from GitHub. The repo is
-# shared as a zip file. The normal way to install from the zip:
+# The repo is public. The simplest install is the one-command bootstrap
+# (see below), which clones the repo — git is installed first if missing.
+# A shared zip still works too. The normal way to install from the zip:
 #   1. Copy the zip to Termux home, e.g. ~/setup-termux.zip
 #   2. Unpack it:  unzip ~/setup-termux.zip   (creates ~/setup-termux/)
 #   3. Run the installer from inside the unpacked dir:
@@ -24,13 +25,13 @@
 #   git clone --branch termux --single-branch https://github.com/skynight137/setup.git ~/setup
 #   ~/setup/install-termux.sh
 #
-# Bootstrap (no repo yet, repo must be public for this to work):
+# Bootstrap (no repo yet):
 #   curl -fsSL https://raw.githubusercontent.com/skynight137/setup/refs/heads/termux/install-termux.sh | bash
 #
 # How the repo is obtained (in order):
 #   1. --zip FILE: unpack that local zip to ~/setup.
 #   2. Run from inside a checkout/unpacked dir: use the files next to it.
-#   3. git clone (needs access to the private repo, or the repo made public).
+#   3. git clone (the repo is public).
 #   4. If none of those work: the script stops and tells you to copy the
 #      shared zip to Termux home and unpack it, or pass it with --zip.
 #
@@ -91,8 +92,8 @@ install_from_zip() {
 }
 
 # Resolve the repo dir: --zip wins, then a checkout/unpacked dir this script
-# lives in, then git clone. No download from GitHub — the repo is private
-# and is shared as a zip file.
+# lives in, then git clone (the repo is public, so clone works from a fresh
+# Termux once git is installed — the installer installs it if missing).
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 if [ -n "$ZIP_SRC" ]; then
     REPO_DIR="$REPO_DIR_DEFAULT"
@@ -101,6 +102,15 @@ elif [ -d "$SCRIPT_DIR/.termux" ] && [ -d "$SCRIPT_DIR/distro" ]; then
     REPO_DIR="$SCRIPT_DIR"
 else
     REPO_DIR="$REPO_DIR_DEFAULT"
+    # Fresh Termux has no git. Install it before any clone/pull, otherwise
+    # the curl-piped bootstrap fails with "git: command not found".
+    # stdin is /dev/null: when run as `curl ... | bash`, a pkg install
+    # reading stdin would eat the rest of the piped script.
+    if ! command -v git >/dev/null 2>&1; then
+        echo "== git not found, installing =="
+        pkg install -y git </dev/null || { pkg update -y </dev/null; pkg install -y git </dev/null; }
+        command -v git >/dev/null 2>&1 || { echo "ERROR: git is required but could not be installed." >&2; exit 1; }
+    fi
     if [ -d "$REPO_DIR/.git" ]; then
         echo "== Repo already at $REPO_DIR, pulling latest =="
         git -C "$REPO_DIR" pull --ff-only || true
@@ -108,7 +118,7 @@ else
         echo "== Cloned $REPO_URL (branch $REPO_BRANCH) to $REPO_DIR =="
     else
         echo "ERROR: could not obtain the repo (git clone failed)." >&2
-        echo "The repo is private — copy the shared zip to Termux home, unpack it, then run the installer from inside:" >&2
+        echo "Check your connection, or copy the shared zip to Termux home, unpack it, then run the installer from inside:" >&2
         echo "  unzip ~/setup-termux.zip" >&2
         echo "  ~/setup-termux/install-termux.sh" >&2
         echo "or pass the zip directly:" >&2
