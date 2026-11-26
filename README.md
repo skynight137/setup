@@ -1,8 +1,11 @@
 # Termux + proot-distro Ubuntu setup
 
 Two-phase setup: Termux style + Ubuntu (proot-distro) with zsh, oh-my-zsh,
-powerlevel10k and plugins. The config files live in this repo (branch `termux`),
-the installers copy them from the local checkout — no curl from another repo.
+powerlevel10k and plugins. The config files live in this repo (branch `termux`).
+Only the Termux phase is scripted (`install-termux.sh`); the Distro phase is
+manual copy-paste — every automated attempt at the zsh steps failed the same
+way while the same steps run manually always work, so there is no
+install-distro.sh. The manual steps are in "Phase Distro (manual)" below.
 
 > Note: this repo is **public**. The one-command bootstrap below works
 > from a fresh Termux. A shared zip still works too: copy the zip to
@@ -22,13 +25,15 @@ setup/                  # clone target: ~/setup on Termux
     .p10k.zsh
     .zshrc
   install-termux.sh     # Phase Termux (run in Termux)
-  install-distro.sh     # Phase Ubuntu (run inside proot-distro ubuntu)
+  # Phase Distro is manual copy-paste — see "Phase Distro (manual)" below.
+  # There is no install-distro.sh.
 ```
 
 ## Quick start (fresh Termux)
 
 Two steps, split on purpose. `install-termux.sh` only prepares the
-proot distro in Termux; `install-distro.sh` runs separately inside it.
+proot distro in Termux; the Distro phase is manual copy-paste
+(see "Phase Distro (manual)" below).
 
 Step 1 — Termux phase (one command):
 
@@ -40,22 +45,13 @@ The installer installs git first if it is missing, then clones the repo
 and runs the Termux phase (storage permission, Termux style, proot-distro
 ubuntu install).
 
-Step 2 — Ubuntu phase (inside the distro):
+Step 2 — Distro phase (manual, inside the distro):
 
-Log into the distro first, then run the installer from inside it:
+Log in, then follow the steps in "Phase Distro (manual)" below:
 
 ```
 proot-distro login ubuntu
-/data/data/com.termux/files/home/setup/install-distro.sh
 ```
-
-Do NOT run it one-shot (`proot-distro login ubuntu -- <script>`):
-zsh is not fully set up in that context, so the zsh steps are not
-accepted and the install fails the same way every time. When zsh is
-run inside an interactive zsh session, everything works.
-
-That copies the 3 config files to /root/, then prints the 4 plugin
-clone commands for you to run manually.
 
 Or install from a shared zip. The shared zip lands in Downloads after
 you receive it (e.g. via Telegram).
@@ -72,7 +68,7 @@ cd setup-termux
 ./install-termux.sh            # Termux phase only
 ```
 
-Then run the Ubuntu phase inside the distro (see Step 2 above).
+Then the Distro phase, manual (see "Phase Distro (manual)" below).
 
 Or let the installer unpack the zip for you (unpacks to `~/setup`):
 
@@ -99,56 +95,127 @@ What `install-termux.sh` does:
 2. `termux-setup-storage` (Android storage permission dialog).
 3. Copies `.termux/` to `~/.termux/` and runs `termux-reload-settings`.
 4. Installs `proot-distro` and the `ubuntu` distro (skipped if present).
-5. Prints the command to run `install-distro.sh` inside the distro.
-   (It does not run the Ubuntu phase itself — that is a separate step.)
+5. Prints the next step: the Phase Distro manual steps in this README.
+   (It does not run the Distro phase itself — that is manual copy-paste.)
 
-## Ubuntu phase (manual)
+## Phase Distro (manual)
 
-After the Termux phase, log into the distro first, then run it inside:
+After the Termux phase, log into the distro and run these steps by hand,
+in order. There is no installer for this phase: every automated attempt
+at the zsh steps failed the same way while the same steps run manually
+always work.
 
 ```
 proot-distro login ubuntu
-/data/data/com.termux/files/home/setup/install-distro.sh
 ```
 
-Do NOT run it one-shot (`proot-distro login ubuntu -- <script>`):
-zsh is not fully set up in that context, so the zsh steps are not
-accepted.
+```
+root@localhost:~# pwd
+/root
+```
 
-What `install-distro.sh` does (all inside the distro, as root):
+### 1. Fix apt sources (do this first, before oh-my-zsh)
 
-1. Fixes apt sources to the complete set — the proot image ships a minimal
-   list (often only `main`, sometimes the wrong mirror for the arch), so apt
-   is missing packages. It rewrites the sources to all components
-   (`main restricted universe multiverse`) and all pockets (release,
-   `-updates`, `-security`, `-backports`), on the right mirror for the arch
-   (`ports.ubuntu.com` for arm64/armhf, `archive.ubuntu.com` otherwise).
-   Handles both the deb822 format (`/etc/apt/sources.list.d/ubuntu.sources`,
-   Ubuntu 24.04+) and the one-line format (`/etc/apt/sources.list`).
-   Originals are backed up to `*.bak`.
-2. `apt update && apt install curl zsh git ca-certificates`.
-3. Installs oh-my-zsh unattended (`RUNZSH=no`, so no interactive zsh is spawned
-   and no mid-script `exit` is needed) and makes zsh root's default shell.
-4. Clones the powerlevel10k theme.
-5. Restores `distro/.bashrc`, `distro/.p10k.zsh`, `distro/.zshrc` to `/root/`
-   (from `/data/data/com.termux/files/home/setup/distro`), then removes
-   `~/.zcompdump*` so the next zsh start regenerates a fresh cache.
-6. Prints the 4 plugin clone commands for you to run manually, then the
-   re-login command. (uv is not installed — not part of this setup.)
+The proot image ships a minimal apt source list (often only `main`,
+sometimes the wrong mirror for the arch), so apt is missing packages.
+Paste this whole block — it rewrites the sources to the complete set
+(all components `main restricted universe multiverse`, all pockets
+release, `-updates`, `-security`, `-backports`), on the right mirror
+for the arch (`ports.ubuntu.com` for arm64/armhf, `archive.ubuntu.com`
+otherwise). Handles both the deb822 format
+(`/etc/apt/sources.list.d/ubuntu.sources`, Ubuntu 24.04+) and the
+one-line format (`/etc/apt/sources.list`). Originals are backed up
+to `*.bak`.
 
-Then run the 4 plugin commands it prints, and re-login to get zsh + powerlevel10k:
+```
+codename="$(. /etc/os-release; printf '%s' "$VERSION_CODENAME")"
+arch="$(dpkg --print-architecture)"
+case "$arch" in
+  arm64|armhf) mirror="http://ports.ubuntu.com/ubuntu-ports/" ;;
+  *) mirror="http://archive.ubuntu.com/ubuntu/" ;;
+esac
+if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then
+  cp /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list.d/ubuntu.sources.bak
+  {
+    echo "Types: deb"
+    echo "URIs: $mirror"
+    echo "Suites: $codename $codename-updates $codename-security $codename-backports"
+    echo "Components: main restricted universe multiverse"
+    [ -f /usr/share/keyrings/ubuntu-archive-keyring.gpg ] && echo "Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg"
+  } > /etc/apt/sources.list.d/ubuntu.sources
+  [ -s /etc/apt/sources.list ] && { cp /etc/apt/sources.list /etc/apt/sources.list.bak; printf '# managed by setup; see ubuntu.sources\n' > /etc/apt/sources.list; }
+else
+  cp /etc/apt/sources.list /etc/apt/sources.list.bak
+  for p in "" "-updates" "-security" "-backports"; do
+    echo "deb $mirror $codename$p main restricted universe multiverse"
+  done > /etc/apt/sources.list
+fi
+```
+
+### 2. Install base packages
+
+```
+apt update -y && apt install -y curl zsh git ca-certificates
+```
+
+### 3. Install Oh-My-Zsh
+
+`RUNZSH=no` so it does not spawn an interactive zsh mid-step:
+
+```
+RUNZSH=no sh -c "$(curl -fsSL https://install.ohmyz.sh/)"
+```
+
+Make zsh root's default shell:
+
+```
+chsh -s "$(command -v zsh)"
+```
+
+### 4. Download the theme
+
+```
+git clone --depth=1 --filter=blob:none https://github.com/romkatv/powerlevel10k.git ~/.oh-my-zsh/custom/themes/powerlevel10k
+```
+
+### 5. Download the plugins
+
+```
+git clone --depth=1 --filter=blob:none https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+git clone --depth=1 --filter=blob:none https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+git clone --depth=1 --filter=blob:none https://github.com/joshskidmore/zsh-fzf-history-search ~/.oh-my-zsh/custom/plugins/zsh-fzf-history-search
+git clone --depth=1 --filter=blob:none https://github.com/marlonrichert/zsh-autocomplete ~/.oh-my-zsh/custom/plugins/zsh-autocomplete
+```
+
+### 6. Restore config (files are in this repo under `distro/`)
+
+```
+cp /data/data/com.termux/files/home/setup/distro/.p10k.zsh ~/.p10k.zsh
+cp /data/data/com.termux/files/home/setup/distro/.zshrc ~/.zshrc
+cp /data/data/com.termux/files/home/setup/distro/.bashrc ~/.bashrc
+```
+
+Clear the completion cache so the next zsh start regenerates it fresh
+(a stale `~/.zcompdump` from an earlier broken run keeps failing to
+find completion functions even after the plugins are healed):
+
+```
+rm -f ~/.zcompdump*
+```
+
+### 7. Re-login to Ubuntu
 
 ```
 exit
 proot-distro login ubuntu
 ```
 
-Both scripts are idempotent — safe to re-run; installed pieces are skipped.
+(uv is not installed — not part of this setup.)
 
 ## Manual steps (reference)
 
-The installers above are the same steps, automated. For reference, or when
-debugging a step by hand:
+`install-termux.sh` is the same Termux steps, automated. For reference,
+or when debugging a step by hand:
 
 ### Phase Termux
 
@@ -183,47 +250,8 @@ proot-distro install ubuntu
 proot-distro login ubuntu
 ```
 
-### Phase Ubuntu
+### Phase Distro
 
-```
-root@localhost:~# pwd
-/root
-```
-
-Install Oh-My-Zsh:
-
-```
-apt update -y && apt install -y curl zsh git
-sh -c "$(curl -fsSL https://install.ohmyz.sh/)"
-exit
-```
-
-Download themes:
-
-```
-git clone --depth=1 --filter=blob:none https://github.com/romkatv/powerlevel10k.git ~/.oh-my-zsh/custom/themes/powerlevel10k
-```
-
-Download plugins:
-
-```
-git clone --depth=1 --filter=blob:none https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-git clone --depth=1 --filter=blob:none https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
-git clone --depth=1 --filter=blob:none https://github.com/joshskidmore/zsh-fzf-history-search ~/.oh-my-zsh/custom/plugins/zsh-fzf-history-search
-git clone --depth=1 --filter=blob:none https://github.com/marlonrichert/zsh-autocomplete ~/.oh-my-zsh/custom/plugins/zsh-autocomplete
-```
-
-Restore config (files are in this repo under `distro/`):
-
-```
-cp /data/data/com.termux/files/home/setup/distro/.p10k.zsh ~/.p10k.zsh
-cp /data/data/com.termux/files/home/setup/distro/.zshrc ~/.zshrc
-cp /data/data/com.termux/files/home/setup/distro/.bashrc ~/.bashrc
-```
-
-Re-login to Ubuntu:
-
-```
-exit
-proot-distro login ubuntu
-```
+See "Phase Distro (manual)" above — that section is the manual steps
+(apt sources fix first, then oh-my-zsh, theme, plugins, config restore).
+There is no separate reference copy; the two would drift apart.

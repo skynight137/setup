@@ -7,13 +7,12 @@
 #   ./install-termux.sh              Termux phase only: prepare proot-distro ubuntu
 #   ./install-termux.sh --zip FILE   Unpack a local repo zip to ~/setup, then install
 #
-# This script ONLY does the Termux phase. It does not run the Ubuntu
-# phase. After it finishes, log into the distro first, then run
-# install-distro.sh from inside it:
-#   proot-distro login ubuntu
-#   /data/data/com.termux/files/home/setup/install-distro.sh
-# Do NOT run it one-shot (proot-distro login ubuntu -- <script>): zsh
-# is not fully set up in that context, so the zsh steps are not accepted.
+# This script ONLY does the Termux phase. It does not run the Distro
+# phase. After it finishes, the Distro phase is manual copy-paste —
+# see the README, section "Phase Distro (manual)". There is no
+# install-distro.sh: every automated attempt at the zsh steps failed
+# the same way while the same steps run manually always work, so the
+# Distro phase is left as manual steps instead of a broken script.
 #
 # The repo is public. The simplest install is the one-command bootstrap
 # (see below), which clones the repo — git is installed first if missing.
@@ -47,7 +46,8 @@
 #   3. Copies .termux/{termux.properties,colors.properties,font.ttf} to ~/.termux/
 #      and reloads Termux settings.
 #   4. Installs proot-distro and the ubuntu distro (skipped if already present).
-#   5. Prints the command to run install-distro.sh inside the distro.
+#   5. Prints the next step: the Phase Distro manual steps in the README.
+#      (It does not run the Distro phase itself — that is manual copy-paste.)
 # Clean look: fail fast on error. Repair is a separate step — if the
 # install fails, the error is visible and the run stops, instead of
 # continuing into a half-installed state.
@@ -166,11 +166,7 @@ else
     proot-distro install ubuntu
 fi
 
-DISTRO_SCRIPT="$REPO_DIR/install-distro.sh"
-chmod +x "$DISTRO_SCRIPT" 2>/dev/null || true
-
 echo ""
-echo "Done (Termux phase). Now log into the distro first, then run the Ubuntu phase from inside it:"
+echo "Done (Termux phase). Now the Distro phase — manual copy-paste steps,"
+echo "see the README section \"Phase Distro (manual)\". Log in first:"
 echo "  proot-distro login ubuntu"
-echo "  $DISTRO_SCRIPT"
-echo "(Do not run it one-shot with 'proot-distro login ubuntu -- <script>' — zsh is not fully set up in that context.)"
