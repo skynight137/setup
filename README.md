@@ -42,9 +42,17 @@ ubuntu install).
 
 Step 2 — Ubuntu phase (inside the distro):
 
+Log into the distro first, then run the installer from inside it:
+
 ```
-proot-distro login ubuntu -- /data/data/com.termux/files/home/setup/install-distro.sh
+proot-distro login ubuntu
+/data/data/com.termux/files/home/setup/install-distro.sh
 ```
+
+Do NOT run it one-shot (`proot-distro login ubuntu -- <script>`):
+zsh is not fully set up in that context, so the zsh steps are not
+accepted and the install fails the same way every time. When zsh is
+run inside an interactive zsh session, everything works.
 
 That copies the 3 config files to /root/, then prints the 4 plugin
 clone commands for you to run manually.
@@ -96,18 +104,16 @@ What `install-termux.sh` does:
 
 ## Ubuntu phase (manual)
 
-After the Termux phase, from Termux:
-
-```
-proot-distro login ubuntu -- /data/data/com.termux/files/home/setup/install-distro.sh
-```
-
-Or log in first, then run it inside:
+After the Termux phase, log into the distro first, then run it inside:
 
 ```
 proot-distro login ubuntu
 /data/data/com.termux/files/home/setup/install-distro.sh
 ```
+
+Do NOT run it one-shot (`proot-distro login ubuntu -- <script>`):
+zsh is not fully set up in that context, so the zsh steps are not
+accepted.
 
 What `install-distro.sh` does (all inside the distro, as root):
 

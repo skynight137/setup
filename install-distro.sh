@@ -6,8 +6,14 @@
 # Usage (from inside the distro):
 #   /data/data/com.termux/files/home/setup/install-distro.sh
 #
-# Or from Termux (one command, runs the same script inside the distro):
-#   proot-distro login ubuntu -- /data/data/com.termux/files/home/setup/install-distro.sh
+# IMPORTANT: run this from INSIDE an interactive proot-distro login.
+# Log in first, then run the script there:
+#   proot-distro login ubuntu
+#   /data/data/com.termux/files/home/setup/install-distro.sh
+# Do NOT run it one-shot (proot-distro login ubuntu -- <script>): zsh
+# is not fully set up in that context, so the zsh steps are not accepted
+# and the install fails the same way every time. When zsh is run inside
+# an interactive zsh session, everything works.
 #
 # What it does:
 #   1. Fixes apt sources to the complete set (all components + all pockets,

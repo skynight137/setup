@@ -8,11 +8,12 @@
 #   ./install-termux.sh --zip FILE   Unpack a local repo zip to ~/setup, then install
 #
 # This script ONLY does the Termux phase. It does not run the Ubuntu
-# phase. After it finishes, run install-distro.sh inside the distro:
-#   proot-distro login ubuntu -- /data/data/com.termux/files/home/setup/install-distro.sh
-# or log in and run it there:
+# phase. After it finishes, log into the distro first, then run
+# install-distro.sh from inside it:
 #   proot-distro login ubuntu
 #   /data/data/com.termux/files/home/setup/install-distro.sh
+# Do NOT run it one-shot (proot-distro login ubuntu -- <script>): zsh
+# is not fully set up in that context, so the zsh steps are not accepted.
 #
 # The repo is public. The simplest install is the one-command bootstrap
 # (see below), which clones the repo — git is installed first if missing.
@@ -169,8 +170,7 @@ DISTRO_SCRIPT="$REPO_DIR/install-distro.sh"
 chmod +x "$DISTRO_SCRIPT" 2>/dev/null || true
 
 echo ""
-echo "Done (Termux phase). Now run the Ubuntu phase inside the distro:"
-echo "  proot-distro login ubuntu -- $DISTRO_SCRIPT"
-echo "or log in and run it there:"
+echo "Done (Termux phase). Now log into the distro first, then run the Ubuntu phase from inside it:"
 echo "  proot-distro login ubuntu"
 echo "  $DISTRO_SCRIPT"
+echo "(Do not run it one-shot with 'proot-distro login ubuntu -- <script>' — zsh is not fully set up in that context.)"
