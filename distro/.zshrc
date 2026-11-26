@@ -1,7 +1,8 @@
 # load zsh
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(git python colored-man-pages zsh-syntax-highlighting zsh-autosuggestions zsh-fzf-history-search zsh-autocomplete)
+plugins=(colorize zsh-syntax-highlighting zsh-autosuggestions zsh-interactive-cd zsh-autocomplete)
+
 
 source $ZSH/oh-my-zsh.sh
 
@@ -12,7 +13,6 @@ source $ZSH/oh-my-zsh.sh
 ##
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.local/bin
 export LANG=en_US.UTF-8
-export UV_LINK_MODE=copy
 
 ## Alias
 alias q="exit"
@@ -29,7 +29,4 @@ alias vsource="source ~/.venv/bin/activate"
 alias gclone="git clone --depth=1 --filter=blob:none"
 
 
-##
-
-. "$HOME/.local/bin/env"
 

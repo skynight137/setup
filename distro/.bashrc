@@ -98,7 +98,7 @@ fi
 #    . /etc/bash_completion
 #fi
 
-. "$HOME/.local/bin/env"
+
 
 
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/root/.local/bin
