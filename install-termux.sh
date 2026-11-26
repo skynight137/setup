@@ -7,23 +7,35 @@
 #   ./install-termux.sh              Termux phase, then ask to run the Ubuntu phase
 #   ./install-termux.sh --auto       Termux phase + run the Ubuntu phase automatically
 #   ./install-termux.sh --no-distro  Termux phase only, never touch the distro
-#   ./install-termux.sh --zip FILE   Use a repo zip (local file) instead of git clone
-#   ./install-termux.sh --zip URL    Use a repo zip (download URL) instead of git clone
+#   ./install-termux.sh --zip FILE   Unpack a local repo zip to ~/setup, then install
 #
-# Bootstrap (no clone yet):
+# The repo is private, so there is no download from GitHub. The repo is
+# shared as a zip file. The normal way to install from the zip:
+#   1. Copy the zip to Termux home, e.g. ~/setup-termux.zip
+#   2. Unpack it:  unzip ~/setup-termux.zip   (creates ~/setup-termux/)
+#   3. Run the installer from inside the unpacked dir:
+#         ~/setup-termux/install-termux.sh
+#   The script uses the files next to it, so the unpacked dir name does not
+#   matter. Alternatively, let the script do the unpack for you:
+#         ./install-termux.sh --zip ~/setup-termux.zip
+#   (unpacks to ~/setup, then continues with the install).
+#
+# With git access, clone first instead:
+#   git clone --branch termux --single-branch https://github.com/skynight137/setup.git ~/setup
+#   ~/setup/install-termux.sh
+#
+# Bootstrap (no repo yet, repo must be public for this to work):
 #   curl -fsSL https://raw.githubusercontent.com/skynight137/setup/refs/heads/termux/install-termux.sh | bash
 #
 # How the repo is obtained (in order):
-#   1. --zip FILE/URL: unpack that zip to ~/setup.
-#   2. Run from inside a checkout: use the local files.
-#   3. git clone (repo must be public, or git must be authenticated).
-#   4. If the clone fails (e.g. repo is private): download the branch zip
-#      from GitHub (works once the repo is public) and unpack it.
-#   5. If that also fails: the script stops and tells you to make the repo
-#      public, or pass a local zip with --zip.
+#   1. --zip FILE: unpack that local zip to ~/setup.
+#   2. Run from inside a checkout/unpacked dir: use the files next to it.
+#   3. git clone (needs access to the private repo, or the repo made public).
+#   4. If none of those work: the script stops and tells you to copy the
+#      shared zip to Termux home and unpack it, or pass it with --zip.
 #
 # What it does:
-#   1. Obtains this repo at ~/setup (clone, local checkout, or zip).
+#   1. Obtains this repo (checkout, unpacked zip, or clone).
 #   2. termux-setup-storage (Android storage permission dialog).
 #   3. Copies .termux/{termux.properties,colors.properties,font.ttf} to ~/.termux/
 #      and reloads Termux settings.
@@ -34,7 +46,6 @@ set -euo pipefail
 
 REPO_URL="https://github.com/skynight137/setup.git"
 REPO_BRANCH="termux"
-REPO_ZIP_URL="https://github.com/skynight137/setup/archive/refs/heads/termux.zip"
 REPO_DIR_DEFAULT="$HOME/setup"
 
 AUTO=0
@@ -59,19 +70,12 @@ for arg in "$@"; do
     esac
 done
 
-# Unpack a repo zip (local file or URL) into $1 (target dir). GitHub branch
-# zips extract to a single top-level dir named setup-<branch>; that dir's
-# contents become the target dir.
+# Unpack a local repo zip into $2 (target dir). The zip extracts to a single
+# top-level dir (e.g. setup-termux/); that dir's contents become the target.
 install_from_zip() {
-    local src="$1" target="$2" zipfile tmpdir top
+    local zipfile="$1" target="$2" tmpdir top
+    [ -f "$zipfile" ] || { echo "zip not found: $zipfile" >&2; return 1; }
     tmpdir="$(mktemp -d)"
-    if [ -f "$src" ]; then
-        zipfile="$src"
-    else
-        zipfile="$tmpdir/repo.zip"
-        echo "== Downloading repo zip: $src =="
-        curl -fsSL -o "$zipfile" "$src" || { echo "zip download failed: $src" >&2; rm -rf "$tmpdir"; return 1; }
-    fi
     command -v unzip >/dev/null 2>&1 || pkg install -y unzip
     unzip -q -o "$zipfile" -d "$tmpdir" || { echo "unzip failed: $zipfile" >&2; rm -rf "$tmpdir"; return 1; }
     top="$(find "$tmpdir" -mindepth 1 -maxdepth 1 -type d | head -1)"
@@ -83,8 +87,9 @@ install_from_zip() {
     echo "== Repo unpacked to $target =="
 }
 
-# Resolve the repo dir: --zip wins, then a checkout this script lives in,
-# then git clone, then the GitHub branch zip as fallback.
+# Resolve the repo dir: --zip wins, then a checkout/unpacked dir this script
+# lives in, then git clone. No download from GitHub — the repo is private
+# and is shared as a zip file.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 if [ -n "$ZIP_SRC" ]; then
     REPO_DIR="$REPO_DIR_DEFAULT"
@@ -99,13 +104,13 @@ else
     elif git clone --branch "$REPO_BRANCH" --single-branch "$REPO_URL" "$REPO_DIR" 2>/dev/null; then
         echo "== Cloned $REPO_URL (branch $REPO_BRANCH) to $REPO_DIR =="
     else
-        echo "== git clone failed (repo may be private) — trying the branch zip =="
-        if ! install_from_zip "$REPO_ZIP_URL" "$REPO_DIR"; then
-            echo "ERROR: could not obtain the repo." >&2
-            echo "Make the repo public and re-run, or pass a local zip:" >&2
-            echo "  $0 --zip /path/to/setup-termux.zip" >&2
-            exit 1
-        fi
+        echo "ERROR: could not obtain the repo (git clone failed)." >&2
+        echo "The repo is private — copy the shared zip to Termux home, unpack it, then run the installer from inside:" >&2
+        echo "  unzip ~/setup-termux.zip" >&2
+        echo "  ~/setup-termux/install-termux.sh" >&2
+        echo "or pass the zip directly:" >&2
+        echo "  $0 --zip ~/setup-termux.zip" >&2
+        exit 1
     fi
 fi
 

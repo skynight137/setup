@@ -4,9 +4,10 @@ Two-phase setup: Termux style + Ubuntu (proot-distro) with zsh, oh-my-zsh,
 powerlevel10k and plugins. The config files live in this repo (branch `termux`),
 the installers copy them from the local checkout — no curl from another repo.
 
-> Note: this repo is currently **private**. The installers get it by git clone
-> (needs auth) or from a zip. If you want a no-auth install, make the repo
-> public first — then clone and the branch-zip fallback both work.
+> Note: this repo is **private** and stays private. There is no download
+> from GitHub. The repo is shared as a zip file: copy the zip to Termux
+> home, unpack it, and run the installer from inside the unpacked dir.
+> (If the repo is ever made public, the git-clone route below works too.)
 
 ## Layout
 
@@ -26,37 +27,47 @@ setup/                  # clone target: ~/setup on Termux
 
 ## Quick start (fresh Termux)
 
-One command, end to end (it prompts before the Ubuntu phase):
+Install from the shared zip (repo stays private — no download from GitHub):
+
+```
+# 1. Copy the shared zip to Termux home, e.g. ~/setup-termux.zip
+# 2. Unpack it (creates ~/setup-termux/)
+unzip ~/setup-termux.zip
+# 3. Run the installer from inside the unpacked dir
+~/setup-termux/install-termux.sh            # prompts to run the Ubuntu phase
+~/setup-termux/install-termux.sh --auto     # also run the Ubuntu phase, no prompt
+~/setup-termux/install-termux.sh --no-distro  # Termux phase only
+```
+
+Or let the installer unpack the zip for you (unpacks to `~/setup`):
+
+```
+./install-termux.sh --zip ~/setup-termux.zip
+```
+
+Or, with git access, clone first, then run:
+
+```
+pkg install -y git
+git clone --branch termux --single-branch https://github.com/skynight137/setup.git ~/setup
+~/setup/install-termux.sh
+```
+
+One command, end to end (only works if the repo is public):
 
 ```
 curl -fsSL https://raw.githubusercontent.com/skynight137/setup/refs/heads/termux/install-termux.sh | bash
 ```
 
-Or clone first, then run:
-
-```
-pkg install -y git
-git clone --branch termux --single-branch https://github.com/skynight137/setup.git ~/setup
-~/setup/install-termux.sh            # prompts to run the Ubuntu phase
-~/setup/install-termux.sh --auto     # also run the Ubuntu phase, no prompt
-~/setup/install-termux.sh --no-distro  # Termux phase only
-```
-
-No git / repo is private? Use a zip instead — unpack, then distribute:
-
-```
-~/setup/install-termux.sh --zip /path/to/setup-termux.zip   # local zip file
-~/setup/install-termux.sh --zip https://example.com/setup-termux.zip  # URL
-```
-
-The installer obtains the repo in this order: `--zip` first, then the local
-checkout it runs from, then `git clone`, then the GitHub branch zip as a
-fallback (works once the repo is public). If all of those fail it stops and
-tells you to make the repo public or pass a local zip.
+The installer obtains the repo in this order: `--zip` first (unpacks a local
+zip to `~/setup`), then the local checkout/unpacked dir it runs from, then
+`git clone`. The script never downloads the repo zip — the zip is shared as
+a file. If none of those work it stops and tells you to copy the shared zip
+to Termux home, unpack it, and run the installer from inside.
 
 What `install-termux.sh` does:
 
-1. Obtains this repo at `~/setup` (clone, local checkout, or zip).
+1. Obtains this repo (unpacked zip, local checkout, or clone).
 2. `termux-setup-storage` (Android storage permission dialog).
 3. Copies `.termux/` to `~/.termux/` and runs `termux-reload-settings`.
 4. Installs `proot-distro` and the `ubuntu` distro (skipped if present).
