@@ -118,22 +118,23 @@ else
 fi
 
 echo "== Termux storage permission =="
-# NOTE: termux-setup-storage needs a foreground terminal to show the
-# Android permission dialog. Run from inside a script it often fails
-# silently (no dialog appears), while running it manually works. So try
-# it here, verify it actually worked, and if not, tell the user to run
-# it manually instead of silently continuing without storage access.
+# termux-setup-storage runs here in the installer — it can be forced
+# without a manual step. It shows the Android permission dialog; allow
+# it and the ~/storage symlinks are created. Retry once in case the
+# dialog is slow to appear.
 if [ -d "$HOME/storage" ]; then
     echo "Storage already set up."
 else
     termux-setup-storage || true
     sleep 2
+    if [ ! -d "$HOME/storage" ]; then
+        termux-setup-storage || true
+        sleep 2
+    fi
     if [ -d "$HOME/storage" ]; then
         echo "Storage permission granted."
     else
-        echo "WARNING: the storage permission dialog did not appear (or was not allowed)."
-        echo "Run it manually in Termux, allow the storage permission, then re-run this installer:"
-        echo "  termux-setup-storage"
+        echo "WARNING: storage permission was not granted (dialog not allowed)."
         echo "Continuing anyway — storage is only needed for file access (e.g. copying from Downloads), not for the install itself."
     fi
 fi

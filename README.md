@@ -30,14 +30,9 @@ setup/                  # clone target: ~/setup on Termux
 Install from the shared zip (repo stays private — no download from GitHub).
 The shared zip lands in Downloads after you receive it (e.g. via Telegram).
 
-First, grant storage access. Run it manually — from inside a script the
-permission dialog often does not appear:
-
-```
-termux-setup-storage
-```
-
-Then copy the zip to Termux home, unpack, and run the installer:
+The installer handles storage access itself (`termux-setup-storage` runs
+inside it — allow the permission dialog when it appears). Copy the zip to
+Termux home, unpack, and run the installer:
 
 ```
 pwd    # /data/data/com.termux/files/home
