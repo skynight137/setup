@@ -23,7 +23,13 @@
 #   5. Restores distro/.bashrc, distro/.p10k.zsh, distro/.zshrc to /root/.
 #   6. Installs uv (default on; the dotfiles source ~/.local/bin/env).
 #   7. Prints the re-login command to get zsh + powerlevel10k.
-set -euo pipefail
+# No `set -euo pipefail` here, deliberately. A manual run (typing the same
+# commands one by one) has no issues; the installer must behave the same
+# way — visible output, no silent abort. `set -e` killed the script on the
+# first transient failure and, combined with output redirected to /dev/null,
+# hid where and why it died, leaving a half-installed system. Failures are
+# handled explicitly instead: ensure_clone() retries and verifies, and the
+# script collects failed clones and reports them at the end.
 
 WITH_UV=1
 for arg in "$@"; do
@@ -128,9 +134,9 @@ fi
 # health and re-clones when it is not healthy, so re-running the
 # installer heals a bad theme/plugin instead of silently keeping it.
 # The clone is retried up to 3 times and the marker is verified after
-# each attempt: with `set -e` at the top, a single transient network
-# failure would otherwise abort the whole install mid-way (the manual
-# version has no such abort, which is why it never hit this).
+# each attempt, so a transient network failure does not leave a partial
+# clone behind. The clone output is NOT silenced — like a manual run,
+# you see what git actually did, and a failure is visible, not hidden.
 ensure_clone() {
     local url="$1" dest="$2" marker="$3" attempt=0
     if [ -d "$dest/.git" ] && git -C "$dest" rev-parse --git-dir >/dev/null 2>&1 && [ -f "$dest/$marker" ]; then
@@ -140,7 +146,7 @@ ensure_clone() {
     while [ "$attempt" -lt 3 ]; do
         attempt=$((attempt + 1))
         [ -e "$dest" ] && rm -rf "$dest"
-        if git clone --depth=1 --filter=blob:none "$url" "$dest" >/dev/null 2>&1 && [ -f "$dest/$marker" ]; then
+        if git clone --depth=1 --filter=blob:none "$url" "$dest" && [ -f "$dest/$marker" ]; then
             return 0
         fi
         echo "clone of $(basename "$dest") failed or incomplete, retrying ($attempt/3)..." >&2
@@ -150,8 +156,9 @@ ensure_clone() {
     return 1
 }
 
+FAILED_CLONES=""
 echo "== powerlevel10k theme =="
-ensure_clone https://github.com/romkatv/powerlevel10k.git "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" "powerlevel10k.zsh-theme"
+ensure_clone https://github.com/romkatv/powerlevel10k.git "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" "powerlevel10k.zsh-theme" || FAILED_CLONES="$FAILED_CLONES powerlevel10k"
 
 echo "== plugins =="
 for spec in \
@@ -162,7 +169,7 @@ for spec in \
     name="${spec%% *}"
     url="${spec#* }"
     dest="$HOME/.oh-my-zsh/custom/plugins/$name"
-    ensure_clone "$url" "$dest" "$name.plugin.zsh"
+    ensure_clone "$url" "$dest" "$name.plugin.zsh" || FAILED_CLONES="$FAILED_CLONES $name"
 done
 
 echo "== restore config =="
@@ -177,6 +184,13 @@ if [ "$WITH_UV" -eq 1 ]; then
     else
         echo "uv already installed."
     fi
+fi
+
+if [ -n "$FAILED_CLONES" ]; then
+    echo "" >&2
+    echo "ERROR: these clones failed after 3 attempts each:$FAILED_CLONES" >&2
+    echo "Re-run this script — it is idempotent and will retry only the failed ones." >&2
+    exit 1
 fi
 
 echo ""

@@ -42,7 +42,10 @@
 #   4. Installs proot-distro and the ubuntu distro (skipped if already present).
 #   5. Runs the Ubuntu phase (install-distro.sh) inside the distro, or prints
 #      the command to run it manually.
-set -euo pipefail
+# No `set -euo pipefail` here, deliberately. Same reason as install-distro.sh:
+# a manual run has no issues; the installer must behave the same way — visible
+# output, no silent abort. `set -e` killed the script on the first transient
+# failure while output redirected to /dev/null hid where and why it died.
 
 REPO_URL="https://github.com/skynight137/setup.git"
 REPO_BRANCH="termux"
@@ -101,7 +104,7 @@ else
     if [ -d "$REPO_DIR/.git" ]; then
         echo "== Repo already at $REPO_DIR, pulling latest =="
         git -C "$REPO_DIR" pull --ff-only || true
-    elif git clone --branch "$REPO_BRANCH" --single-branch "$REPO_URL" "$REPO_DIR" 2>/dev/null; then
+    elif git clone --branch "$REPO_BRANCH" --single-branch "$REPO_URL" "$REPO_DIR"; then
         echo "== Cloned $REPO_URL (branch $REPO_BRANCH) to $REPO_DIR =="
     else
         echo "ERROR: could not obtain the repo (git clone failed)." >&2
