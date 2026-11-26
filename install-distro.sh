@@ -127,14 +127,27 @@ fi
 # script skipped it, leaving the broken plugin in place. This verifies
 # health and re-clones when it is not healthy, so re-running the
 # installer heals a bad theme/plugin instead of silently keeping it.
+# The clone is retried up to 3 times and the marker is verified after
+# each attempt: with `set -e` at the top, a single transient network
+# failure would otherwise abort the whole install mid-way (the manual
+# version has no such abort, which is why it never hit this).
 ensure_clone() {
-    local url="$1" dest="$2" marker="$3"
+    local url="$1" dest="$2" marker="$3" attempt=0
     if [ -d "$dest/.git" ] && git -C "$dest" rev-parse --git-dir >/dev/null 2>&1 && [ -f "$dest/$marker" ]; then
         echo "$(basename "$dest") already present."
-    else
-        [ -e "$dest" ] && rm -rf "$dest"
-        git clone --depth=1 --filter=blob:none "$url" "$dest"
+        return 0
     fi
+    while [ "$attempt" -lt 3 ]; do
+        attempt=$((attempt + 1))
+        [ -e "$dest" ] && rm -rf "$dest"
+        if git clone --depth=1 --filter=blob:none "$url" "$dest" >/dev/null 2>&1 && [ -f "$dest/$marker" ]; then
+            return 0
+        fi
+        echo "clone of $(basename "$dest") failed or incomplete, retrying ($attempt/3)..." >&2
+        sleep 2
+    done
+    echo "ERROR: failed to clone $url after 3 attempts." >&2
+    return 1
 }
 
 echo "== powerlevel10k theme =="
