@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# install-distro.sh — Phase Ubuntu: zsh + oh-my-zsh + powerlevel10k + plugins + uv.
+# install-distro.sh — Phase Ubuntu: zsh + oh-my-zsh + powerlevel10k + plugins.
 #
 # Run INSIDE proot-distro ubuntu as root. Idempotent; safe to re-run.
 #
 # Usage (from inside the distro):
 #   /data/data/com.termux/files/home/setup/install-distro.sh
-#   /data/data/com.termux/files/home/setup/install-distro.sh --no-uv
 #
 # Or from Termux (one command, runs the same script inside the distro):
 #   proot-distro login ubuntu -- /data/data/com.termux/files/home/setup/install-distro.sh
@@ -21,17 +20,15 @@
 #   5. Restores distro/.bashrc, distro/.p10k.zsh, distro/.zshrc to /root/,
 #      then removes ~/.zcompdump* so the next zsh start regenerates a
 #      fresh completion cache.
-#   6. Installs uv (default on; the dotfiles source ~/.local/bin/env).
-#   7. Prints the 4 plugin clone commands for the user to run manually,
+#   6. Prints the 4 plugin clone commands for the user to run manually,
 #      then the re-login command. The installer does NOT clone the
 #      plugins: every automated attempt left them in a state zsh does
 #      not like, while the same commands run manually always work.
+#      (uv is NOT installed here — not part of this setup.)
 set -euo pipefail
 
-WITH_UV=1
 for arg in "$@"; do
     case "$arg" in
-        --no-uv) WITH_UV=0 ;;
         -h|--help)
             sed -n '2,20p' "${BASH_SOURCE[0]:-$0}"
             exit 0
@@ -41,8 +38,15 @@ done
 
 # Repo dir = the dir this script lives in. From inside the distro the Termux
 # home path is reachable, so the repo's distro/ files are right next to it.
+# Prefer the canonical path /data/data/com.termux/files/home/setup/distro
+# (the repo's standard location); fall back to the dir next to this script
+# when it was unpacked elsewhere.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
-DISTRO_DIR="$SCRIPT_DIR/distro"
+if [ -d "/data/data/com.termux/files/home/setup/distro" ]; then
+    DISTRO_DIR="/data/data/com.termux/files/home/setup/distro"
+else
+    DISTRO_DIR="$SCRIPT_DIR/distro"
+fi
 
 if [ "$(id -u)" -ne 0 ]; then
     echo "Run as root inside the distro (proot-distro login ubuntu)." >&2
@@ -168,15 +172,6 @@ cp "$DISTRO_DIR/.zshrc" "$HOME/.zshrc"
 # completion functions like _autocomplete__unambiguous even after the
 # plugin is healed.
 rm -f "$HOME"/.zcompdump*
-
-if [ "$WITH_UV" -eq 1 ]; then
-    echo "== uv =="
-    if ! command -v uv >/dev/null 2>&1; then
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-    else
-        echo "uv already installed."
-    fi
-fi
 
 if [ -n "$FAILED_CLONES" ]; then
     echo "" >&2

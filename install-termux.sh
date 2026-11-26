@@ -4,10 +4,15 @@
 # Run in Termux. Idempotent; safe to re-run.
 #
 # Usage:
-#   ./install-termux.sh              Termux phase, then ask to run the Ubuntu phase
-#   ./install-termux.sh --auto       Termux phase + run the Ubuntu phase automatically
-#   ./install-termux.sh --no-distro  Termux phase only, never touch the distro
+#   ./install-termux.sh              Termux phase only: prepare proot-distro ubuntu
 #   ./install-termux.sh --zip FILE   Unpack a local repo zip to ~/setup, then install
+#
+# This script ONLY does the Termux phase. It does not run the Ubuntu
+# phase. After it finishes, run install-distro.sh inside the distro:
+#   proot-distro login ubuntu -- /data/data/com.termux/files/home/setup/install-distro.sh
+# or log in and run it there:
+#   proot-distro login ubuntu
+#   /data/data/com.termux/files/home/setup/install-distro.sh
 #
 # The repo is public. The simplest install is the one-command bootstrap
 # (see below), which clones the repo — git is installed first if missing.
@@ -41,8 +46,7 @@
 #   3. Copies .termux/{termux.properties,colors.properties,font.ttf} to ~/.termux/
 #      and reloads Termux settings.
 #   4. Installs proot-distro and the ubuntu distro (skipped if already present).
-#   5. Runs the Ubuntu phase (install-distro.sh) inside the distro, or prints
-#      the command to run it manually.
+#   5. Prints the command to run install-distro.sh inside the distro.
 # Clean look: fail fast on error. Repair is a separate step — if the
 # install fails, the error is visible and the run stops, instead of
 # continuing into a half-installed state.
@@ -52,13 +56,9 @@ REPO_URL="https://github.com/skynight137/setup.git"
 REPO_BRANCH="termux"
 REPO_DIR_DEFAULT="$HOME/setup"
 
-AUTO=0
-NO_DISTRO=0
 ZIP_SRC=""
 for arg in "$@"; do
     case "$arg" in
-        --auto|-y|--yes) AUTO=1 ;;
-        --no-distro) NO_DISTRO=1 ;;
         --zip) ZIP_PENDING=1 ;;
         --zip=*) ZIP_SRC="${arg#--zip=}" ;;
         -h|--help)
@@ -169,28 +169,8 @@ DISTRO_SCRIPT="$REPO_DIR/install-distro.sh"
 chmod +x "$DISTRO_SCRIPT" 2>/dev/null || true
 
 echo ""
-echo "== Phase Ubuntu =="
-echo "Run inside the distro with:"
+echo "Done (Termux phase). Now run the Ubuntu phase inside the distro:"
 echo "  proot-distro login ubuntu -- $DISTRO_SCRIPT"
-echo "or manually:"
+echo "or log in and run it there:"
 echo "  proot-distro login ubuntu"
 echo "  $DISTRO_SCRIPT"
-
-if [ "$NO_DISTRO" -eq 0 ]; then
-    RUN_DISTRO=0
-    if [ "$AUTO" -eq 1 ]; then
-        RUN_DISTRO=1
-    elif [ -t 0 ]; then
-        read -r -p "Run the Ubuntu setup now? [y/N] " ans
-        case "$ans" in
-            [yY]*) RUN_DISTRO=1 ;;
-        esac
-    fi
-    if [ "$RUN_DISTRO" -eq 1 ]; then
-        echo "== Running Ubuntu phase inside the distro =="
-        proot-distro login ubuntu -- "$DISTRO_SCRIPT"
-    fi
-fi
-
-echo ""
-echo "Done (Termux phase). Re-login to the distro to get zsh + powerlevel10k."

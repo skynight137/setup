@@ -27,15 +27,27 @@ setup/                  # clone target: ~/setup on Termux
 
 ## Quick start (fresh Termux)
 
-One command, end to end:
+Two steps, split on purpose. `install-termux.sh` only prepares the
+proot distro in Termux; `install-distro.sh` runs separately inside it.
+
+Step 1 — Termux phase (one command):
 
 ```
 curl -fsSL https://raw.githubusercontent.com/skynight137/setup/refs/heads/termux/install-termux.sh | bash
 ```
 
 The installer installs git first if it is missing, then clones the repo
-and runs the Termux phase (it prompts to run the Ubuntu phase; use
-`--auto` to run it without prompting).
+and runs the Termux phase (storage permission, Termux style, proot-distro
+ubuntu install).
+
+Step 2 — Ubuntu phase (inside the distro):
+
+```
+proot-distro login ubuntu -- /data/data/com.termux/files/home/setup/install-distro.sh
+```
+
+That copies the 3 config files to /root/, then prints the 4 plugin
+clone commands for you to run manually.
 
 Or install from a shared zip. The shared zip lands in Downloads after
 you receive it (e.g. via Telegram).
@@ -49,10 +61,10 @@ pwd    # /data/data/com.termux/files/home
 cp /storage/emulated/0/Download/setup-termux.zip .
 unzip setup-termux.zip
 cd setup-termux
-./install-termux.sh            # prompts to run the Ubuntu phase
-./install-termux.sh --auto     # also run the Ubuntu phase, no prompt
-./install-termux.sh --no-distro  # Termux phase only
+./install-termux.sh            # Termux phase only
 ```
+
+Then run the Ubuntu phase inside the distro (see Step 2 above).
 
 Or let the installer unpack the zip for you (unpacks to `~/setup`):
 
@@ -79,7 +91,8 @@ What `install-termux.sh` does:
 2. `termux-setup-storage` (Android storage permission dialog).
 3. Copies `.termux/` to `~/.termux/` and runs `termux-reload-settings`.
 4. Installs `proot-distro` and the `ubuntu` distro (skipped if present).
-5. Runs the Ubuntu phase inside the distro, or prints the command to do it manually.
+5. Prints the command to run `install-distro.sh` inside the distro.
+   (It does not run the Ubuntu phase itself — that is a separate step.)
 
 ## Ubuntu phase (manual)
 
@@ -94,7 +107,6 @@ Or log in first, then run it inside:
 ```
 proot-distro login ubuntu
 /data/data/com.termux/files/home/setup/install-distro.sh
-/data/data/com.termux/files/home/setup/install-distro.sh --no-uv   # skip uv
 ```
 
 What `install-distro.sh` does (all inside the distro, as root):
@@ -111,14 +123,14 @@ What `install-distro.sh` does (all inside the distro, as root):
 2. `apt update && apt install curl zsh git ca-certificates`.
 3. Installs oh-my-zsh unattended (`RUNZSH=no`, so no interactive zsh is spawned
    and no mid-script `exit` is needed) and makes zsh root's default shell.
-4. Clones powerlevel10k + 4 plugins
-   (zsh-syntax-highlighting, zsh-autosuggestions, zsh-fzf-history-search,
-   zsh-autocomplete).
-5. Restores `distro/.bashrc`, `distro/.p10k.zsh`, `distro/.zshrc` to `/root/`.
-6. Installs uv (the dotfiles source `~/.local/bin/env`; skip with `--no-uv`).
-7. Prints the re-login command.
+4. Clones the powerlevel10k theme.
+5. Restores `distro/.bashrc`, `distro/.p10k.zsh`, `distro/.zshrc` to `/root/`
+   (from `/data/data/com.termux/files/home/setup/distro`), then removes
+   `~/.zcompdump*` so the next zsh start regenerates a fresh cache.
+6. Prints the 4 plugin clone commands for you to run manually, then the
+   re-login command. (uv is not installed — not part of this setup.)
 
-Then re-login to get zsh + powerlevel10k:
+Then run the 4 plugin commands it prints, and re-login to get zsh + powerlevel10k:
 
 ```
 exit
@@ -198,15 +210,9 @@ git clone --depth=1 --filter=blob:none https://github.com/marlonrichert/zsh-auto
 Restore config (files are in this repo under `distro/`):
 
 ```
-cp distro/.p10k.zsh ~/.p10k.zsh
-cp distro/.zshrc ~/.zshrc
-cp distro/.bashrc ~/.bashrc
-```
-
-Install uv package manager (optional):
-
-```
-curl -LsSf https://astral.sh/uv/install.sh | sh
+cp /data/data/com.termux/files/home/setup/distro/.p10k.zsh ~/.p10k.zsh
+cp /data/data/com.termux/files/home/setup/distro/.zshrc ~/.zshrc
+cp /data/data/com.termux/files/home/setup/distro/.bashrc ~/.bashrc
 ```
 
 Re-login to Ubuntu:
