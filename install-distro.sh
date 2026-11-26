@@ -16,7 +16,10 @@
 #   2. apt install curl zsh git ca-certificates.
 #   3. Installs oh-my-zsh unattended (RUNZSH=no: no interactive zsh spawned,
 #      no mid-script `exit` needed) and makes zsh root's default shell.
-#   4. Clones the powerlevel10k theme + 4 plugins.
+#   4. Clones the powerlevel10k theme + 4 plugins. Each clone is verified
+#      healthy (valid git repo + marker file); a directory left by an
+#      interrupted/partial clone is removed and re-cloned, so re-running
+#      the installer heals a broken plugin instead of skipping it.
 #   5. Restores distro/.bashrc, distro/.p10k.zsh, distro/.zshrc to /root/.
 #   6. Installs uv (default on; the dotfiles source ~/.local/bin/env).
 #   7. Prints the re-login command to get zsh + powerlevel10k.
@@ -117,13 +120,25 @@ if [ "$(basename "${SHELL:-/bin/bash}")" != "zsh" ]; then
     chsh -s "$(command -v zsh)" || true
 fi
 
+# ensure_clone <url> <dest> <marker> — clone the repo to dest, unless dest
+# is already a healthy clone (valid git repo + marker file present).
+# A plain `[ -d ]` check is not enough: a directory left by an
+# interrupted/partial clone looks "present" but is broken, and the old
+# script skipped it, leaving the broken plugin in place. This verifies
+# health and re-clones when it is not healthy, so re-running the
+# installer heals a bad theme/plugin instead of silently keeping it.
+ensure_clone() {
+    local url="$1" dest="$2" marker="$3"
+    if [ -d "$dest/.git" ] && git -C "$dest" rev-parse --git-dir >/dev/null 2>&1 && [ -f "$dest/$marker" ]; then
+        echo "$(basename "$dest") already present."
+    else
+        [ -e "$dest" ] && rm -rf "$dest"
+        git clone --depth=1 --filter=blob:none "$url" "$dest"
+    fi
+}
+
 echo "== powerlevel10k theme =="
-THEME_DIR="$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
-if [ ! -d "$THEME_DIR" ]; then
-    git clone --depth=1 --filter=blob:none https://github.com/romkatv/powerlevel10k.git "$THEME_DIR"
-else
-    echo "powerlevel10k already present."
-fi
+ensure_clone https://github.com/romkatv/powerlevel10k.git "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" "powerlevel10k.zsh-theme"
 
 echo "== plugins =="
 for spec in \
@@ -134,11 +149,7 @@ for spec in \
     name="${spec%% *}"
     url="${spec#* }"
     dest="$HOME/.oh-my-zsh/custom/plugins/$name"
-    if [ ! -d "$dest" ]; then
-        git clone --depth=1 --filter=blob:none "$url" "$dest"
-    else
-        echo "$name already present."
-    fi
+    ensure_clone "$url" "$dest" "$name.plugin.zsh"
 done
 
 echo "== restore config =="
