@@ -6,7 +6,6 @@
 # Usage (from inside the distro):
 #   /data/data/com.termux/files/home/setup/install-distro.sh
 #   /data/data/com.termux/files/home/setup/install-distro.sh --no-uv
-#   /data/data/com.termux/files/home/setup/install-distro.sh --doctor
 #
 # Or from Termux (one command, runs the same script inside the distro):
 #   proot-distro login ubuntu -- /data/data/com.termux/files/home/setup/install-distro.sh
@@ -17,33 +16,22 @@
 #   2. apt install curl zsh git ca-certificates.
 #   3. Installs oh-my-zsh unattended (RUNZSH=no: no interactive zsh spawned,
 #      no mid-script `exit` needed) and makes zsh root's default shell.
-#   4. Clones the powerlevel10k theme + 4 plugins. Each clone is verified
-#      healthy (valid git repo + marker file); a directory left by an
-#      interrupted/partial clone is removed and re-cloned, so re-running
-#      the installer heals a broken plugin instead of skipping it.
+#   4. Clones the powerlevel10k theme (verified healthy; a directory left
+#      by an interrupted/partial clone is removed and re-cloned).
 #   5. Restores distro/.bashrc, distro/.p10k.zsh, distro/.zshrc to /root/,
 #      then removes ~/.zcompdump* so the next zsh start regenerates a
-#      fresh completion cache (must come after the plugins + config are
-#      in place — a stale cache from an earlier broken run is what made
-#      zsh fail to find _autocomplete__unambiguous).
+#      fresh completion cache.
 #   6. Installs uv (default on; the dotfiles source ~/.local/bin/env).
-#   7. Prints the re-login command to get zsh + powerlevel10k, and a
-#      notice to run --doctor if zsh shows completion errors.
-#
-# --doctor (repair mode, run after zsh is installed): checks .bashrc,
-# .p10k.zsh, .zshrc against the repo (restores any that are missing or
-# differ), then deletes and re-clones the 4 plugins, then clears
-# ~/.zcompdump*. The main install can leave the plugins in a state zsh
-# does not like even when the files look complete; deleting and
-# re-cloning after zsh has prepared itself is the fix that works.
+#   7. Prints the 4 plugin clone commands for the user to run manually,
+#      then the re-login command. The installer does NOT clone the
+#      plugins: every automated attempt left them in a state zsh does
+#      not like, while the same commands run manually always work.
 set -euo pipefail
 
 WITH_UV=1
-DOCTOR=0
 for arg in "$@"; do
     case "$arg" in
         --no-uv) WITH_UV=0 ;;
-        --doctor) DOCTOR=1 ;;
         -h|--help)
             sed -n '2,20p' "${BASH_SOURCE[0]:-$0}"
             exit 0
@@ -165,78 +153,20 @@ ensure_clone() {
     return 1
 }
 
-# --doctor: repair mode, run after zsh is installed. The main install can
-# leave the plugins in a state zsh does not like even when the files look
-# complete; deleting and re-cloning after zsh has prepared itself is the
-# fix that works. Checks the config files, then force re-clones the 4
-# plugins, then clears the completion cache.
-if [ "$DOCTOR" -eq 1 ]; then
-    echo "== doctor: checking config files =="
-    for f in .bashrc .p10k.zsh .zshrc; do
-        if [ ! -f "$HOME/$f" ]; then
-            echo "$f: MISSING — restoring from repo"
-            cp "$DISTRO_DIR/$f" "$HOME/$f"
-        elif ! cmp -s "$DISTRO_DIR/$f" "$HOME/$f"; then
-            echo "$f: DIFFERS from repo — restoring"
-            cp "$DISTRO_DIR/$f" "$HOME/$f"
-        else
-            echo "$f: ok (matches repo)"
-        fi
-    done
-    echo "== doctor: re-cloning 4 plugins =="
-    DOCTOR_FAILED=""
-    for spec in \
-        "zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting" \
-        "zsh-autosuggestions https://github.com/zsh-users/zsh-autosuggestions" \
-        "zsh-fzf-history-search https://github.com/joshskidmore/zsh-fzf-history-search" \
-        "zsh-autocomplete https://github.com/marlonrichert/zsh-autocomplete" ; do
-        name="${spec%% *}"
-        url="${spec#* }"
-        dest="$HOME/.oh-my-zsh/custom/plugins/$name"
-        rm -rf "$dest"
-        ensure_clone "$url" "$dest" "$name.plugin.zsh" || DOCTOR_FAILED="$DOCTOR_FAILED $name"
-    done
-    echo "== doctor: clearing completion cache =="
-    rm -f "$HOME"/.zcompdump*
-    if [ -n "$DOCTOR_FAILED" ]; then
-        echo "ERROR: these plugins still failed to clone:$DOCTOR_FAILED" >&2
-        exit 1
-    fi
-    echo ""
-    echo "Doctor done. Re-login or run: exec zsh"
-    exit 0
-fi
-
 FAILED_CLONES=""
 echo "== powerlevel10k theme =="
 ensure_clone https://github.com/romkatv/powerlevel10k.git "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" "powerlevel10k.zsh-theme" || FAILED_CLONES="$FAILED_CLONES powerlevel10k"
-
-echo "== plugins =="
-for spec in \
-    "zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting" \
-    "zsh-autosuggestions https://github.com/zsh-users/zsh-autosuggestions" \
-    "zsh-fzf-history-search https://github.com/joshskidmore/zsh-fzf-history-search" \
-    "zsh-autocomplete https://github.com/marlonrichert/zsh-autocomplete" ; do
-    name="${spec%% *}"
-    url="${spec#* }"
-    dest="$HOME/.oh-my-zsh/custom/plugins/$name"
-    ensure_clone "$url" "$dest" "$name.plugin.zsh" || FAILED_CLONES="$FAILED_CLONES $name"
-done
 
 echo "== restore config =="
 cp "$DISTRO_DIR/.bashrc" "$HOME/.bashrc"
 cp "$DISTRO_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
 cp "$DISTRO_DIR/.zshrc" "$HOME/.zshrc"
 
-# ORDER MATTERS: remove the completion cache AFTER the plugins are in
-# place AND the config is restored. A ~/.zcompdump generated by an
-# earlier run (when a plugin was broken/incomplete) is stale: zsh keeps
-# using it and fails to find completion functions like
-# _autocomplete__unambiguous even after the plugin is healed. Removing
-# it here forces the next zsh start to regenerate a fresh cache with all
-# plugins present. This is the stale-cache fix — it is NOT about
-# --filter=blob:none (that was correctly reverted; the filter was never
-# the problem).
+# Clear the completion cache so the next zsh start regenerates it fresh.
+# A ~/.zcompdump generated by an earlier run (when a plugin was
+# broken/incomplete) is stale: zsh keeps using it and fails to find
+# completion functions like _autocomplete__unambiguous even after the
+# plugin is healed.
 rm -f "$HOME"/.zcompdump*
 
 if [ "$WITH_UV" -eq 1 ]; then
@@ -250,15 +180,18 @@ fi
 
 if [ -n "$FAILED_CLONES" ]; then
     echo "" >&2
-    echo "ERROR: these clones failed after 3 attempts each:$FAILED_CLONES" >&2
-    echo "Re-run this script — it is idempotent and will retry only the failed ones." >&2
+    echo "ERROR: the theme clone failed after 3 attempts:$FAILED_CLONES" >&2
+    echo "Re-run this script — it is idempotent and will retry it." >&2
     exit 1
 fi
 
 echo ""
-echo "Done. Exit and re-login to get zsh + powerlevel10k:"
+echo "Done. Now install the 4 plugins manually (run these, one by one):"
+echo "  rm -rf ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && git clone --depth=1 --filter=blob:none https://github.com/zsh-users/zsh-syntax-highlighting ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+echo "  rm -rf ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions && git clone --depth=1 --filter=blob:none https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+echo "  rm -rf ~/.oh-my-zsh/custom/plugins/zsh-fzf-history-search && git clone --depth=1 --filter=blob:none https://github.com/joshskidmore/zsh-fzf-history-search ~/.oh-my-zsh/custom/plugins/zsh-fzf-history-search"
+echo "  rm -rf ~/.oh-my-zsh/custom/plugins/zsh-autocomplete && git clone --depth=1 --filter=blob:none https://github.com/marlonrichert/zsh-autocomplete ~/.oh-my-zsh/custom/plugins/zsh-autocomplete"
+echo ""
+echo "Then exit and re-login to get zsh + powerlevel10k:"
 echo "  exit"
 echo "  proot-distro login ubuntu"
-echo ""
-echo "If zsh shows completion errors (e.g. \"command not found: _autocomplete__unambiguous\"), run the doctor:"
-echo "  proot-distro login ubuntu -- /data/data/com.termux/files/home/setup/install-distro.sh --doctor"
