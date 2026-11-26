@@ -4,6 +4,10 @@ Two-phase setup: Termux style + Ubuntu (proot-distro) with zsh, oh-my-zsh,
 powerlevel10k and plugins. The config files live in this repo (branch `termux`),
 the installers copy them from the local checkout — no curl from another repo.
 
+> Note: this repo is currently **private**. The installers get it by git clone
+> (needs auth) or from a zip. If you want a no-auth install, make the repo
+> public first — then clone and the branch-zip fallback both work.
+
 ## Layout
 
 ```
@@ -38,9 +42,21 @@ git clone --branch termux --single-branch https://github.com/skynight137/setup.g
 ~/setup/install-termux.sh --no-distro  # Termux phase only
 ```
 
+No git / repo is private? Use a zip instead — unpack, then distribute:
+
+```
+~/setup/install-termux.sh --zip /path/to/setup-termux.zip   # local zip file
+~/setup/install-termux.sh --zip https://example.com/setup-termux.zip  # URL
+```
+
+The installer obtains the repo in this order: `--zip` first, then the local
+checkout it runs from, then `git clone`, then the GitHub branch zip as a
+fallback (works once the repo is public). If all of those fail it stops and
+tells you to make the repo public or pass a local zip.
+
 What `install-termux.sh` does:
 
-1. Clones this repo to `~/setup` (skipped when run from inside the repo).
+1. Obtains this repo at `~/setup` (clone, local checkout, or zip).
 2. `termux-setup-storage` (Android storage permission dialog).
 3. Copies `.termux/` to `~/.termux/` and runs `termux-reload-settings`.
 4. Installs `proot-distro` and the `ubuntu` distro (skipped if present).
@@ -64,15 +80,24 @@ proot-distro login ubuntu
 
 What `install-distro.sh` does (all inside the distro, as root):
 
-1. `apt update && apt install curl zsh git ca-certificates`.
-2. Installs oh-my-zsh unattended (`RUNZSH=no`, so no interactive zsh is spawned
+1. Fixes apt sources to the complete set — the proot image ships a minimal
+   list (often only `main`, sometimes the wrong mirror for the arch), so apt
+   is missing packages. It rewrites the sources to all components
+   (`main restricted universe multiverse`) and all pockets (release,
+   `-updates`, `-security`, `-backports`), on the right mirror for the arch
+   (`ports.ubuntu.com` for arm64/armhf, `archive.ubuntu.com` otherwise).
+   Handles both the deb822 format (`/etc/apt/sources.list.d/ubuntu.sources`,
+   Ubuntu 24.04+) and the one-line format (`/etc/apt/sources.list`).
+   Originals are backed up to `*.bak`.
+2. `apt update && apt install curl zsh git ca-certificates`.
+3. Installs oh-my-zsh unattended (`RUNZSH=no`, so no interactive zsh is spawned
    and no mid-script `exit` is needed) and makes zsh root's default shell.
-3. Clones powerlevel10k + 4 plugins
+4. Clones powerlevel10k + 4 plugins
    (zsh-syntax-highlighting, zsh-autosuggestions, zsh-fzf-history-search,
    zsh-autocomplete).
-4. Restores `distro/.bashrc`, `distro/.p10k.zsh`, `distro/.zshrc` to `/root/`.
-5. Installs uv (the dotfiles source `~/.local/bin/env`; skip with `--no-uv`).
-6. Prints the re-login command.
+5. Restores `distro/.bashrc`, `distro/.p10k.zsh`, `distro/.zshrc` to `/root/`.
+6. Installs uv (the dotfiles source `~/.local/bin/env`; skip with `--no-uv`).
+7. Prints the re-login command.
 
 Then re-login to get zsh + powerlevel10k:
 
