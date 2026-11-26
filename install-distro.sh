@@ -16,12 +16,8 @@
 #   2. apt install curl zsh git ca-certificates.
 #   3. Installs oh-my-zsh unattended (RUNZSH=no: no interactive zsh spawned,
 #      no mid-script `exit` needed) and makes zsh root's default shell.
-#   4. Clones the powerlevel10k theme + 4 plugins (plain --depth=1, no
-#      --filter=blob:none — a partial clone can leave the plugin's
-#      Completions/ files unfetched, which breaks zsh-autocomplete with
-#      "command not found: _autocomplete__unambiguous").
-#   5. Restores distro/.bashrc, distro/.p10k.zsh, distro/.zshrc to /root/,
-#      and resets the completion cache (~/.zcompdump*).
+#   4. Clones the powerlevel10k theme + 4 plugins.
+#   5. Restores distro/.bashrc, distro/.p10k.zsh, distro/.zshrc to /root/.
 #   6. Installs uv (default on; the dotfiles source ~/.local/bin/env).
 #   7. Prints the re-login command to get zsh + powerlevel10k.
 set -euo pipefail
@@ -124,7 +120,7 @@ fi
 echo "== powerlevel10k theme =="
 THEME_DIR="$HOME/.oh-my-zsh/custom/themes/powerlevel10k"
 if [ ! -d "$THEME_DIR" ]; then
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$THEME_DIR"
+    git clone --depth=1 --filter=blob:none https://github.com/romkatv/powerlevel10k.git "$THEME_DIR"
 else
     echo "powerlevel10k already present."
 fi
@@ -139,7 +135,7 @@ for spec in \
     url="${spec#* }"
     dest="$HOME/.oh-my-zsh/custom/plugins/$name"
     if [ ! -d "$dest" ]; then
-        git clone --depth=1 "$url" "$dest"
+        git clone --depth=1 --filter=blob:none "$url" "$dest"
     else
         echo "$name already present."
     fi
@@ -149,12 +145,6 @@ echo "== restore config =="
 cp "$DISTRO_DIR/.bashrc" "$HOME/.bashrc"
 cp "$DISTRO_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
 cp "$DISTRO_DIR/.zshrc" "$HOME/.zshrc"
-
-# Reset the completion cache. A stale/corrupt .zcompdump (e.g. from an
-# interrupted clone or update) makes zsh report missing completion
-# functions like `_autocomplete__unambiguous` ("command not found").
-# zsh regenerates it on next start.
-rm -f "$HOME"/.zcompdump*
 
 if [ "$WITH_UV" -eq 1 ]; then
     echo "== uv =="
